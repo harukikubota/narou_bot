@@ -39,6 +39,7 @@ defmodule NarouBotWeb.Endpoint do
 
   plug NarouBotWeb.Router
 
+
   @doc """
   Callback invoked for dynamically configuring the endpoint.
 

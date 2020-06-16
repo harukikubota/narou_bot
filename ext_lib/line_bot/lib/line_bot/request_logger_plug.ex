@@ -1,8 +1,4 @@
-defmodule LineBot.RequestLoggerPlug do
-  @behaviour Plug
-  @moduledoc false
-
-  @impl true
+defmodule LineBot.RequestLogger do
   def init(opts), do: Keyword.get(opts, :level, :debug)
 
   @impl true
