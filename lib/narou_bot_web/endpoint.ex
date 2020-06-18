@@ -21,6 +21,8 @@ defmodule NarouBotWeb.Endpoint do
 
   plug Plug.Logger
 
+  plug NarouBot.Router
+
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
     pass: ["*/*"],

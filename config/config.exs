@@ -28,5 +28,4 @@ import_config "#{Mix.env}.exs"
 config :line_bot,
   client_id:     System.get_env("LINE_CHANNEL_ID"),
   client_secret: System.get_env("LINE_CHANNEL_SECRET"),
-  # TODO remove this before deployment!
-  skip_validation: true
+  skip_validation: false
