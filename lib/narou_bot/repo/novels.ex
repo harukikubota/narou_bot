@@ -1,7 +1,12 @@
 defmodule NarouBot.Repo.Novels do
   import Ecto.Query
   alias NarouBot.Repo
-  alias Repo.{Util, NovelEpisodes, UsersCheckNovels}
+  alias Repo.{
+    Util,
+    NovelEpisodes,
+    UsersCheckNovels,
+    NotificationFacts
+  }
   alias NarouBot.Entity.{
     Novel,
     Writer,
@@ -25,22 +30,21 @@ defmodule NarouBot.Repo.Novels do
     novel_detail_query(:registerd, user_id)
     |> where([user_check: u], u.type == ^type)
     |> Repo.all
+    |> add_col_unread_count(:all, type)
   end
 
   def novel_detail(:one, user_id, novel_id) do
-    {user_register_status, query} = if UsersCheckNovels.registered?(user_id, novel_id) do
-      {:registered, novel_detail_query(:registerd, user_id)}
-    else
-      {:no_register, novel_detail_query(:no_register)}
-    end
-
     record =
-      query
+      (if UsersCheckNovels.registered?(user_id, novel_id) do
+        novel_detail_query(:registerd, user_id)
+      else
+        novel_detail_query(:no_register)
+      end)
       |> where([novels: n], n.id == ^novel_id)
       |> first()
       |> Repo.one
 
-    {user_register_status, record}
+    add_col_unread_count(record, :one, Map.get(record.check_user, :type))
   end
 
   defp novel_detail_query(:registerd, user_id) do
@@ -59,8 +63,20 @@ defmodule NarouBot.Repo.Novels do
       preload: [writer: w, last_episode: ^NovelEpisodes.novel_last_episodes_query]
   end
 
-  defp novel_detail_additional_columns(q, "update_notify"), do: q |> select_merge([_,uc,_,_], %{do_notify: uc.do_notify})
-  defp novel_detail_additional_columns(q, "read_later"),    do: q |> select_merge([_,uc,_,_], %{restart_episode_id: uc.restart_episode_id, restart_index_updated_at: uc.updated_at})
+  def add_col_unread_count(cols, :all, "update_notify") do
+    Enum.map(cols, &(add_col_unread_count(&1, :one, "update_notify")))
+  end
+
+  def add_col_unread_count(col, :one, "update_notify") do
+    unless col.check_user.do_notify do
+
+      Map.merge(col, %{unread_count: NotificationFacts.user_unread_episode_count(col.check_user.user_id, col.id)})
+    else
+      col
+    end
+  end
+
+  def add_col_unread_count(col, _, _), do: col
 
   def find_by_ncode(ncode) do
     from(

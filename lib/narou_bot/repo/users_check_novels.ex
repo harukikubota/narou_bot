@@ -10,6 +10,7 @@ defmodule NarouBot.Repo.UsersCheckNovels do
   end
 
   def registered?(user_id, novel_id, type) do
+    type = to_string(type)
     from(UserCheckNovel, where: [user_id: ^user_id, novel_id: ^novel_id, type: ^type]) |> Repo.exists?
   end
 

@@ -48,7 +48,12 @@ defmodule NarouBot.Template.Novel.Show do
         latest_episode_info(novel)
       ]
     }
-    # TODO 通知オフなら未読件数
+
+    with {:ok, ch} <- Map.fetch(novel, :check_user), false <- ch.do_notify do
+      Map.update!(body, :contents, &(&1 ++ [box_unread_count(novel)]))
+    else
+      _ -> body
+    end
   end
 
   def body("read_later", novel) do
@@ -90,6 +95,18 @@ defmodule NarouBot.Template.Novel.Show do
         %F.Text{
           text: format_date_yymmddhhmi(novel.last_episode.remote_created_at),
           flex: 7
+        }
+      ]
+    }
+  end
+
+  def box_unread_count(novel) do
+    %F.Box{
+      layout: :horizontal,
+      contents: [
+        %F.Text{
+          text: "未読件数  #{novel.unread_count}",
+          align: :center
         }
       ]
     }

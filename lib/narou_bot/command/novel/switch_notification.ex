@@ -9,7 +9,7 @@ defmodule NarouBot.Command.Novel.SwitchNotification do
 
   def call(param) do
     user_id  = Helper.current_user(param.user_id).id
-    {_, novel} = Novels.novel_detail(:one, user_id, param.data.novel_id)
+    novel = Novels.novel_detail(:one, user_id, param.data.novel_id)
 
     user_unread_count = NotificationFacts.user_unread_episode_count(user_id, novel.id)
     exec_delete_unread = !is_nil(Map.get(param.data, :do_delete))
@@ -38,7 +38,7 @@ defmodule NarouBot.Command.Novel.SwitchNotification do
     case UsersCheckNovels.switch_notification(user_id, novel.id) do
       {:error} -> render(:no_data, nil, key)
       {:ok}    ->
-        {_, novel} = Novels.novel_detail(:one, user_id, novel.id)
+        novel= Novels.novel_detail(:one, user_id, novel.id)
         render(:ok, %{novel: novel}, key)
     end
   end

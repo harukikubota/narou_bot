@@ -75,7 +75,12 @@ defmodule NarouBot.Repo.NotificationFacts do
   end
 
   def user_unread_episode_count(user_id, novel_id) do
-    count = from(
+    # FIXME `0rows`の場合に`nil`が返ってくるのを0にしたい。
+    # - coalesceは列に対しての関数のため意味なし
+
+    # FIXME Novels.novel_detailで直接selectできるようにしたい
+    # 現状は通知オフのレコード分だけクエリが発行される。(多くても50レコードなのでパフォーマンスは気にしなくていいかも。。。)
+    query = from(
       ni in NotificationInfo,
       left_join: ne in assoc(ni, :novel_episode),
       left_join: n in assoc(ne, :novel),
@@ -84,9 +89,8 @@ defmodule NarouBot.Repo.NotificationFacts do
       limit: 1,
       select: count(ne.novel_id)
     )
-    |> Repo.one()
 
-    count || 0
+    Repo.one(query) || 0
   end
 
   def update_status(update_target_fetch_query, status) do
