@@ -2,7 +2,7 @@ defmodule NarouBot.Callback do
   use LineBot
 
   alias NarouBot.Util.Constant
-/
+
   @invoker NarouBot.Command.Invoker
 
   def handle_message(%{type: "text", text: message}, info) do
@@ -44,6 +44,6 @@ defmodule NarouBot.Callback do
     sub = List.wrap(mod_symbols)
       |> Enum.map(&(Macro.camelize(to_string(&1))))
       |> Enum.join(".")
-    Module.concat(NarouUpdateNotifyBot.Command, sub)
+    Module.concat(NarouBot.Command, sub)
   end
 end
