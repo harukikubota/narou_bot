@@ -9,6 +9,9 @@ use Mix.Config
 config :narou_bot,
   ecto_repos: [NarouBot.Repo]
 
+config :narou_bot,
+  inquery_form_url: System.get_env("NAROU_BOT_INQUERY_FORM_URL")
+
 # Configures the endpoint
 config :narou_bot, NarouBotWeb.Endpoint,
   url: [host: "localhost"],
