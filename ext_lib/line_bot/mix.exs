@@ -46,7 +46,6 @@ defmodule LineBot.MixProject do
           LineBot,
           LineBot.APIClient,
           LineBot.EventInfo,
-          LineBot.TokenServer,
           LineBot.Webhook
         ],
         Messages: [

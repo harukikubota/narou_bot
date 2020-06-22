@@ -70,8 +70,8 @@ defmodule LineBot.Dispatcher do
   defp each_key_to_atom(event) do
     event
     |> Map.keys
-    |> Enum.map(&(Macro.underscore(&1)))
-    |> Enum.map(&(String.to_atom(&1)))
+    |> Enum.map(&Macro.underscore/1)
+    |> Enum.map(&String.to_atom/1)
     |> Enum.zip(Enum.map(Map.values(event), &(if is_map(&1), do: each_key_to_atom(&1), else: &1)))
     |> Map.new
   end

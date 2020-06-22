@@ -9,6 +9,7 @@ defmodule NarouBot.Mixfile do
       elixirc_paths: elixirc_paths(Mix.env),
       compilers: [:phoenix, :gettext] ++ Mix.compilers,
       start_permanent: Mix.env == :prod,
+      preferred_cli_env: [espec: :test],
       aliases: aliases(),
       deps: deps()
     ]
@@ -25,7 +26,7 @@ defmodule NarouBot.Mixfile do
   end
 
   # Specifies which paths to compile per environment.
-  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(:test), do: ["lib", "spec/support"]
   defp elixirc_paths(_),     do: ["lib"]
 
   # Specifies your project dependencies.
@@ -34,9 +35,12 @@ defmodule NarouBot.Mixfile do
   defp deps do
     [
       {:narou, git: "https://github.com/harukikubota/narou.git", tag: "0.2.3", override: true},
-      {:phoenix, "~> 1.4.0"},
-      {:phoenix_pubsub, "~> 1.0"},
-      {:phoenix_ecto, ">= 3.2.0 and < 3.5.0"},
+      {:phoenix, github: "phoenixframework/phoenix", branch: "master", override: true},
+      {:phoenix_pubsub, "~> 2.0"},
+      {:phoenix_ecto, ">= 4.1.0"},
+      {:ecto, "~> 3.4.0"},
+      {:ecto_sql, "~> 3.4.3"},
+      {:ecto_enum, "~> 1.3"},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_html, "~> 2.10"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
@@ -62,7 +66,7 @@ defmodule NarouBot.Mixfile do
     [
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      "test": ["ecto.create --quiet", "ecto.migrate", "test"]
+      test: ["ecto.create --quiet", "ecto.migrate", "test"]
     ]
   end
 end

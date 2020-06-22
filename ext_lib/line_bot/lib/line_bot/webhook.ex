@@ -43,7 +43,6 @@ defmodule LineBot.Webhook do
 
   post "/", do: dispatch_events(conn)
   match "/", do: send_resp(conn, :method_not_allowed, "")
-  match _, do: send_resp(conn, :not_found, "")
 
   @impl true
   @doc """
@@ -66,6 +65,7 @@ defmodule LineBot.Webhook do
        ) do
     Logger.debug("handled webhoook verify request")
     send_resp(conn, :ok, "")
+    |> halt()
   end
 
   defp dispatch_events(
@@ -79,6 +79,7 @@ defmodule LineBot.Webhook do
     end)
 
     send_resp(conn, :ok, "")
+    |> halt()
   end
 
   defp dispatch_events(%Plug.Conn{private: %{line_bot_raw_body: request}} = conn) do

@@ -21,6 +21,8 @@ defmodule NarouBotWeb.Endpoint do
 
   plug Plug.Logger
 
+  plug NarouBot.Router
+
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
     pass: ["*/*"],
@@ -38,6 +40,7 @@ defmodule NarouBotWeb.Endpoint do
     signing_salt: "GLbYu9g9"
 
   plug NarouBotWeb.Router
+
 
   @doc """
   Callback invoked for dynamically configuring the endpoint.

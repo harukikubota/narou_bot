@@ -9,8 +9,6 @@ defmodule LineBot.Application do
          {:ok, client_secret} when not is_nil(client_secret) and client_secret != "" <-
            Application.fetch_env(:line_bot, :client_secret) do
       children = [
-        LineBot.TokenServer,
-        LineBot.APIClient,
         {Task.Supervisor, name: LineBot.TaskSupervisor}
       ]
 
