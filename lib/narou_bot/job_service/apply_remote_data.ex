@@ -55,13 +55,13 @@ defmodule NarouBot.JobService.ApplyRemoteData do
 
   def setup(:delete_novel_episode, local, remote) do
     novel_id = local.id
+    episode_ids_to_delete = Range.new(remote.episode_id + 1, local.last_episode.episode_id)
+    notification_target_user_ids =
+      NotificationFacts.users_notificated_new_novel_episode_records(novel_id, hd(Enum.to_list(episode_ids_to_delete)))
+
     %{
-      # FIXME
-      # 1. 通知済みの小説エピソード通知レコードを持つユーザを対象に通知データを作成するように変更。
-      # 2. 後で読むの再開位置が削除される場合に、その小説を登録しているユーザにも通知する。また、再開位置を削除されていない最新エピソードIDに変更する。（メッセージも出す）
-      # とりあえずは小説を登録しているユーザに通知する
-      notification_target_user_ids: UsersCheckNovels.all_users_who_have_registered_novel(novel_id),
-      episode_ids_to_delete: Range.new(remote.episode_id + 1, local.last_episode.episode_id),
+      notification_target_user_ids: notification_target_user_ids,
+      episode_ids_to_delete: episode_ids_to_delete,
       novel_id: novel_id
     }
   end

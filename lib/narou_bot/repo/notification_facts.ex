@@ -2,8 +2,6 @@ defmodule NarouBot.Repo.NotificationFacts do
   import Ecto.Query
   alias NarouBot.Repo
   alias NarouBot.Entity.{
-    User,
-    Novel,
     NovelEpisode,
     UserCheckNovel,
     NotificationInfo
@@ -70,6 +68,17 @@ defmodule NarouBot.Repo.NotificationFacts do
       where: ni.status == "user_unread" and n.id == ^novel_id and ni.user_id == ^user_id,
       order_by: [ne.episode_id],
       preload: [novel_episode: {ne, novel: n}]
+    )
+    |> Repo.all()
+  end
+
+  def users_notificated_new_novel_episode_records(novel_id, episode_id) do
+    from(
+      ni in NotificationInfo,
+      left_join: ne in assoc(ni, :novel_episode),
+      left_join: n in assoc(ne, :novel),
+      where: ni.status == "notificated" and ne.episode_id == ^episode_id and n.id == ^novel_id,
+      select: ni.user_id
     )
     |> Repo.all()
   end

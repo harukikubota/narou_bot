@@ -20,12 +20,14 @@ defmodule NarouBot.Seed do
     setup()
     create_sfo_histries_date(1)
     create_dummy_writer_and_link()
-    create_dummy_new_episode(2)
-    create_dummy_new_episode(2)
+    create_dummy_new_episode("n2267be")
+    create_dummy_new_episode("n2267be")
     create_befor_the_latest_episode()
     delete_novel_leatest_episode()
     create_dummy_and_link(1)
     delete_for_new_post_novel(2)
+    rec = [NarouBot.Repo.NotificationFacts.create(%{type: :novel_new_episode, user_id: 1, novel_episode_id: 26})]
+    NarouBot.Repo.NotificationFacts.change_status_all(rec, "notificated")
   end
 
   def create_many_writers do
@@ -52,10 +54,10 @@ defmodule NarouBot.Seed do
     remote_ids |> Enum.each(&Writers.find_or_create_by/1)
   end
 
-  def create_dummy_new_episode(novel_id) do
+  def create_dummy_new_episode(ncode) do
     target = from(
       n in Novel,
-      where: n.id == ^novel_id,
+      where: n.ncode == ^ncode,
       limit: 1,
       preload: [last_episode: ^NovelEpisodes.novel_last_episodes_query])
     |> Repo.one
@@ -92,7 +94,7 @@ defmodule NarouBot.Seed do
     UsersCheckNovels.link_to(user.id, sfo.id)
     UsersCheckNovels.link_to(user.id, nmn.id)
     UsersCheckNovels.link_to(user.id, mks.id)
-    UsersCheckNovels.link_to(user.id, rzr.id, 1)
+    UsersCheckNovels.link_to(user.id, rzr.id)
     #UsersCheckNovels.link_to(tuser.id, sfo.id)
     #UsersCheckNovels.link_to(tuser.id, tsr.id)
     #UsersCheckNovels.link_to(tuser.id, rzr.id)
