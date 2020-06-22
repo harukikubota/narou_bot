@@ -32,3 +32,15 @@ config :line_bot,
   client_id:     System.get_env("LINE_CHANNEL_ID"),
   client_secret: System.get_env("LINE_CHANNEL_SECRET"),
   skip_validation: false
+
+config :narou_bot, NarouBot.Scheduler,
+  jobs: [
+    {
+      "* * * * *",
+      fn -> NarouBot.JobService.FetchWritersAndCreateNotificationFacts.exec end
+    },
+    {
+      "*/5 * * * *",
+      fn -> NarouBot.JobService.NotificationToUser.exec end
+    }
+  ]

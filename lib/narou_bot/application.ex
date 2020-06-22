@@ -14,6 +14,7 @@ defmodule NarouBot.Application do
       supervisor(NarouBotWeb.Endpoint, []),
       # Start your own worker by calling: NarouBot.Worker.start_link(arg1, arg2, arg3)
       # worker(NarouBot.Worker, [arg1, arg2, arg3]),
+      supervisor(NarouBot.Scheduler, [])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
