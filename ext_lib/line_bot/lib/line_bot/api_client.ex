@@ -31,7 +31,6 @@ defmodule LineBot.APIClient do
   automatically decoded.
   """
   def process_response(%{headers: headers, body: body} = response) do
-    # TODO make this configurable
     Logger.debug("API Response: " <> inspect(response))
 
     case Enum.find(headers, &(String.downcase(elem(&1, 0)) == "content-type")) do
