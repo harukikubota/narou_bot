@@ -2,12 +2,15 @@ defmodule NarouBot.Template.Novel.ShowUserUnreadEpisode do
   use NarouBot.Template
   alias LineBot.Message, as: M
   alias LineBot.Message.Flex, as: F
+  alias NarouBot.Template.Common
   import NarouBot.Template.Helper
   alias NarouBot.Template.Novel.Helper, as: NHelper
 
   def render(:no_unread, %{novel: novel}) do
     %M.Text{text: "「#{novel.title}」の未読エピソードはありません。"}
   end
+
+  def render(:error, _), do: Common.render(:invalid_operation, nil)
 
   def render(:confirm, %{novel: novel}) do
     %F{
