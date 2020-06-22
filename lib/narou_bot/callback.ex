@@ -12,7 +12,7 @@ defmodule NarouBot.Callback do
     else
       _ ->
         with %{"writer_id" => writer_id}
-          <- Regex.named_captures(Util.Constant.writer_regex(), message)
+          <- Regex.named_captures(Constant.writer_regex(), message)
         do
           invoke([:writer, :receive_writer_url], Map.merge(info, %{writer_id: String.to_integer(writer_id)}))
         else
