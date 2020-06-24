@@ -5,17 +5,17 @@ defmodule NarouBot.Command do
       alias NarouBot.Command.MessageServer, as: MS
       alias NarouBot.Command.Helper
 
-      def init(token),          do: {:ok, pid} = MS.start_link(token)
+      def init(reply_token),    do: MS.start_link(self(),reply_token)
       def template(),           do: NarouBot.Command.template_name(__MODULE__)
-      def messages(pid),        do: MS.get_messages(pid)
-      def reply_token(pid),     do: MS.get_reply_token(pid)
-      def render(id, dao, pid), do: template().render(id, dao) |> MS.push(pid)
-      def send(pid),            do: LineBot.send_reply(reply_token(pid), messages(pid))
-      def render_with_send(id, dao, pid) do
-        render(id, dao, pid)
-        send(pid)
+      def messages(),        do: MS.get_messages(self())
+      def reply_token(),     do: MS.get_reply_token(self())
+      def render(id), do: template().render(id, MS.get_dao(self())) |> MS.push_message(self())
+      def send(),            do: LineBot.send_reply(reply_token(), messages())
+      def render_with_send(id) do
+        render(id)
+        send()
       end
-      def close(pid), do: MS.stop(pid)
+      def close(), do: MS.stop(self())
     end
   end
 
