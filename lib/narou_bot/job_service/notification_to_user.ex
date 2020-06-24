@@ -8,6 +8,7 @@ defmodule NarouBot.JobService.NotificationToUser do
 
   def exec do
     if JobControlActivity.job_activity? do
+      :timer.sleep 30000
       Logger.info "start job NotificationToUser"
 
       update_records_not_to_be_notified()
@@ -30,6 +31,10 @@ defmodule NarouBot.JobService.NotificationToUser do
   defp notification_facts, do: NotificationFacts.inserted_records()
 
   defp update_all_to_job_touch(records) do
+    case records do
+      [] -> Logger.info "通知データなし"
+      _  -> Logger.info "通知データ #{length(records)}件"
+    end
     NotificationFacts.change_status_all(records, :job_touch)
     records
   end
