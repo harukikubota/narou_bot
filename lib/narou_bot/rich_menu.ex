@@ -52,7 +52,7 @@ defmodule NarouBot.RichMenu do
   end
 
   def link_menu_image(name, remote_id) do
-    cmd_path = @bin_path <> "/create_lich_menu_image"
+    cmd_path = @bin_path <> "create_lich_menu_image"
     image_path = File.cwd! <> "/" <> @image_path <> "/#{name}.jpg"
     cmd = [cmd_path, remote_id, @token, image_path]
 

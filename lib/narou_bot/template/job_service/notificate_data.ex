@@ -124,7 +124,7 @@ defmodule NarouBot.Template.JobService.Notificate_data do
         %F.Button{
           action: %M.Action.Postback{
             data: postback_data(%{action: "/novel/show", novel_id: novel.id}),
-            label: novel.title
+            label: truncate_str(novel.title)
           }
         }
       ] ++ Enum.map(episodes, &(episode_link(novel, &1)))
@@ -165,7 +165,7 @@ defmodule NarouBot.Template.JobService.Notificate_data do
         %F.Button{
           action: %M.Action.Postback{
             data: postback_data(%{action: "/novel/show", novel_id: novel.id}),
-            label: novel.title
+            label: truncate_str(novel.title)
           }
         },
         %F.Box{
@@ -208,7 +208,7 @@ defmodule NarouBot.Template.JobService.Notificate_data do
         %F.Button{
           action: %M.Action.Postback{
             data: postback_data(%{action: "/writer/show", writer_id: writer.id}),
-            label: writer.name
+            label: truncate_str(writer.name)
           }
         },
         %F.Box{
@@ -239,7 +239,7 @@ defmodule NarouBot.Template.JobService.Notificate_data do
         %F.Button{
           action: %M.Action.Postback{
             data: postback_data(%{action: "/writer/show", writer_id: writer.id}),
-            label: writer.name
+            label: truncate_str(writer.name)
           }
         },
         %F.Box{

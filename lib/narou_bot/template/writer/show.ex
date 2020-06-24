@@ -78,7 +78,7 @@ defmodule NarouBot.Template.Writer.Show do
         %F.Button{
           style: :link,
           action: %M.Action.Postback{
-            label: "• #{novel.title}",
+            label: truncate_str("• #{novel.title}"),
             data: postback_data(%{
               action: "/novel/show",
               novel_id: novel.id

@@ -73,7 +73,7 @@ defmodule NarouBot.Template.Novel.Show do
         %F.Button{
           action: %M.Action.Postback{
             data: postback_data(%{action: "/writer/show", writer_id: novel.writer_id}),
-            label: novel.writer.name
+            label: truncate_str(novel.writer.name)
           }
         }
       ]
