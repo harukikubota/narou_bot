@@ -27,4 +27,8 @@ defmodule NarouBot.Template.Helper do
   end
 
   def add_opt_open_url_link(url), do: url <> "?openExternalBrowser=1"
+
+  def truncate_str(target, remaining_range \\ 0..20) do
+    String.slice(target, remaining_range)
+  end
 end
