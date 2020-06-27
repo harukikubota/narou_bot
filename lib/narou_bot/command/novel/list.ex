@@ -10,7 +10,7 @@ defmodule NarouBot.Command.Novel.List do
     if length(novels) > 0 do
       render_with_send(:ok, %{novels: novels, type: type}, param.key)
     else
-      render_with_send(:no_registered, nil, param.key)
+      render_with_send(:no_registered, %{type: type}, param.key)
     end
   end
 end
