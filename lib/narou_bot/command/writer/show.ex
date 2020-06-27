@@ -6,10 +6,14 @@ defmodule NarouBot.Command.Writer.Show do
     user = Helper.current_user(param.user_id)
     writer = Writers.writer_detail(user.id, param.data.writer_id)
 
-    if writer do
-      render_with_send(:ok, writer, param.key)
+    type = if writer do
+      export writer: writer
+      :ok
     else
-      render_with_send(:no_registered, Writers.find(param.data.writer_id), param.key)
+      export writer: Writers.find(param.data.writer_id)
+      :no_registered
     end
+
+    render_with_send type
   end
 end

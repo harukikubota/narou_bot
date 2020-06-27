@@ -7,11 +7,15 @@ defmodule NarouBot.Command.Writer.Delete do
     user = Helper.current_user(param.user_id)
     writer = Writers.find(param.data.writer_id)
 
-    case UserCallableState.judge(:delete, %{user_id: user.id, writer_id: writer.id}) do
-      {:error} -> render_with_send(:error, nil, param.key)
+    type = case UserCallableState.judge(:delete, %{user_id: user.id, writer_id: writer.id}) do
+      {:error} -> :error
       {:ok}    ->
         UsersCheckWriters.unlink_to(user.id, writer.id)
-        render_with_send(:ok, %{writer: writer}, param.key)
+
+        export writer: writer
+        :ok
     end
+
+    render_with_send type
   end
 end

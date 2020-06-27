@@ -3,8 +3,8 @@ defmodule NarouBot.Command.Novel.ShowUpdateHistory do
   alias NarouBot.Repo.{Novels, NovelEpisodes}
 
   def call(param) do
-    novel = Novels.find(param.data.novel_id)
-    history = NovelEpisodes.leatest_update_history(param.data.novel_id)
-    render_with_send(:ok, %{novel: novel, history: history}, param.key)
+    export novel: Novels.find(param.data.novel_id),
+      history: NovelEpisodes.leatest_update_history(param.data.novel_id)
+    render_with_send :ok
   end
 end

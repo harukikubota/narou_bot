@@ -6,11 +6,7 @@ defmodule NarouBot.Command.Writer.List do
     user = Helper.current_user(param.user_id)
     writers = Writers.writer_detail(user.id)
 
-    cond do
-      length(writers) == 0 ->
-        render_with_send(:no_registered, nil, param.key)
-      length(writers) > 0 ->
-        render_with_send(:ok, writers, param.key)
-    end
+    export writers: writers
+    render_with_send(if length(writers) == 0, do: :no_registered, else: :ok)
   end
 end
