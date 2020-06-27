@@ -72,17 +72,6 @@ defmodule NarouBot.Repo.NotificationFacts do
     |> Repo.all()
   end
 
-  def users_notificated_new_novel_episode_records(novel_id, episode_id) do
-    from(
-      ni in NotificationInfo,
-      left_join: ne in assoc(ni, :novel_episode),
-      left_join: n in assoc(ne, :novel),
-      where: ni.status == "notificated" and ne.episode_id == ^episode_id and n.id == ^novel_id,
-      select: ni.user_id
-    )
-    |> Repo.all()
-  end
-
   def user_unread_episode_count(user_id, novel_id) do
     # FIXME `0rows`の場合に`nil`が返ってくるのを0にしたい。
     # - coalesceは列に対しての関数のため意味なし
