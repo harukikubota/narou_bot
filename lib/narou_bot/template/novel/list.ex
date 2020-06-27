@@ -3,8 +3,9 @@ defmodule NarouBot.Template.Novel.List do
   alias LineBot.Message, as: M
   alias LineBot.Message.Flex, as: F
   alias NarouBot.Template.Novel.Show, as: ColTemplate
+  import NarouBot.Template.Novel.Helper
 
-  def render(:no_registered, _), do: %M.Text{text: "更新通知に登録している小説が存在しません。\n\n追加するにはなろう小説のURLを送信してください。"}
+  def render(:no_registered, %{type: type}), do: %M.Text{text: "#{check_type_to_jp(type)}に登録している小説が存在しません。\n\n追加するにはなろう小説のURLを送信してください。"}
 
   def render(:ok, dao) do
     dao.novels

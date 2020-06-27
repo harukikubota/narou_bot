@@ -4,6 +4,7 @@ defmodule NarouBot.JobService.ApplyRemoteData do
     Novels,
     NovelEpisodes,
     Writers,
+    Users,
     UsersCheckNovels,
     UsersCheckWriters,
     NotificationFacts
@@ -32,7 +33,7 @@ defmodule NarouBot.JobService.ApplyRemoteData do
   def setup(:novel_new_episode, local, remote) do
     novel_id = local.id
     %{
-      notification_target_user_ids: UsersCheckNovels.all_users_who_have_registered_novel(novel_id),
+      notification_target_user_ids: Users.notification_target_users(:novel_new_episode, novel_id: novel_id),
       novel_id:                     novel_id,
       episode_ids_to_create:        Range.new(local.last_episode.episode_id + 1, remote.episode_id),
       remote_created_at:            remote.remote_created_at,
@@ -42,7 +43,7 @@ defmodule NarouBot.JobService.ApplyRemoteData do
   def setup(:new_post_novel, _, remote) do
     writer = Writers.find_by_remote_id(remote.writer_remote_id)
     %{
-      notification_target_user_ids: UsersCheckWriters.all_users_who_have_registered_writer(writer.id),
+      notification_target_user_ids: Users.notification_target_users(:new_post_novel, writer_id: writer.id),
       novel_attr: %{
         ncode: remote.ncode,
         title: remote.title,
@@ -57,7 +58,7 @@ defmodule NarouBot.JobService.ApplyRemoteData do
     novel_id = local.id
     episode_ids_to_delete = Range.new(remote.episode_id + 1, local.last_episode.episode_id)
     notification_target_user_ids =
-      NotificationFacts.users_notificated_new_novel_episode_records(novel_id, hd(Enum.to_list(episode_ids_to_delete)))
+      Users.notification_target_users(:delete_novel_episode, novel_id: novel_id, episode_id: hd(Enum.to_list(episode_ids_to_delete)))
 
     %{
       notification_target_user_ids: notification_target_user_ids,
@@ -69,7 +70,7 @@ defmodule NarouBot.JobService.ApplyRemoteData do
   def setup(:delete_novel, local, _) do
     novel_id = local.id
     %{
-      notification_target_user_ids: UsersCheckNovels.all_users_who_have_registered_novel(novel_id),
+      notification_target_user_ids: Users.notification_target_users(:delete_novel, novel_id: novel_id),
       novel_id: novel_id
     }
   end
@@ -77,7 +78,7 @@ defmodule NarouBot.JobService.ApplyRemoteData do
   def setup(:delete_writer, local, _) do
     writer_id = local.id
     %{
-      notification_target_user_ids: UsersCheckWriters.all_users_who_have_registered_writer(:for_delete, writer_id),
+      notification_target_user_ids: Users.notification_target_users(:delete_writer, writer_id: writer_id),
       writer_id: writer_id
     }
   end

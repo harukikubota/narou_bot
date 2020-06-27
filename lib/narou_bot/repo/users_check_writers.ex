@@ -1,5 +1,6 @@
 defmodule NarouBot.Repo.UsersCheckWriters do
   alias NarouBot.Repo
+  alias Repo.Users
   alias NarouBot.Entity.{User, Novel, UserCheckWriter, UserCheckNovel}
   import Ecto.Query
 
@@ -20,32 +21,8 @@ defmodule NarouBot.Repo.UsersCheckWriters do
   end
 
   def unlink_all(writer_id) do
-    users = all_users_who_have_registered_writer(writer_id)
+    users = Users.notification_target_users :delete_writer, writer_id: writer_id
     Enum.each(users, &(unlink_to(&1, writer_id)))
     users
-  end
-
-  def all_users_who_have_registered_writer(writer_id) do
-    from(
-      u in User,
-        join: uw in UserCheckWriter, on: u.id == uw.user_id,
-        where: uw.writer_id == ^writer_id,
-        distinct: u.id,
-        select:   u.id
-      )
-    |> Repo.all
-  end
-
-  def all_users_who_have_registered_writer(:for_delete, writer_id) do
-    from(
-      u in User,
-        join: uw in UserCheckWriter, on: u.id == uw.user_id,
-        join: un in UserCheckNovel,  on: u.id == un.user_id,
-        join: n  in Novel,           on: n.id == un.novel_id,
-        where: uw.writer_id == ^writer_id or n.writer_id == ^writer_id,
-        distinct: u.id,
-        select:   u.id
-      )
-    |> Repo.all
   end
 end
