@@ -28,7 +28,7 @@ defmodule NarouBot.Repo.Users do
     from u in User,
       as: :user,
       join: un in "users_check_novels", on: u.id == un.user_id,
-      where: un.novel_id == ^novel_id and un.do_notify == true
+      where: un.novel_id == ^novel_id and un.do_notify == true and un.type == "update_notify"
   end
 
   defp _notification_target_users(:new_post_novel, %{writer_id: writer_id}) do
