@@ -1,10 +1,8 @@
 defmodule NarouBot.Command.MessageServer do
   use Agent
 
-  use Agent
-
   def start_link(target_pid, reply_token) do
-    {:ok, pid} = Agent.start_link(fn -> default_record() end, name: to_key_name(target_pid))
+    {:ok, pid} = Agent.start_link(&default_record/0, name: to_key_name(target_pid))
 
     memo_self_pid(pid, target_pid)
     set_reply_token(target_pid, reply_token)
