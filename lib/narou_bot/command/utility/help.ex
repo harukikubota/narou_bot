@@ -1,7 +1,15 @@
 defmodule NarouBot.Command.Utility.Help do
   use NarouBot.Command
 
-  def call(param) do
-    render_with_send(:ok, nil, param.key)
+  def setup(param) do
+    if Map.has_key?(param, :show_type), do: %{}, else: %{show_type: "list"}
+  end
+
+#  def call(%{show_type: type}) do
+#    render_with_send type
+#  end
+
+  def call(_) do
+    render_with_send :mitaiou
   end
 end

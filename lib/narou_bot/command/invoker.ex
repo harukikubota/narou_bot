@@ -1,13 +1,21 @@
 defmodule NarouBot.Command.Invoker do
+  require Logger
 
-  def invoke(mod, func_name, param),          do: _invoke(env(), mod, func_name, param)
-  defp _invoke(:test, mod, func_name, param), do: [mod, func_name, param]
-  defp _invoke(_, mod, func_name, param) do
-    {:ok, pid} = apply(mod, :init, [param.reply_token])
+  def invoke(mod, param),          do: _invoke(Mix.env, mod, param)
+  defp _invoke(:test, mod, param), do: [mod, param]
+  defp _invoke(_, mod, param) do
+    Logger.info "invoked Module: #{inspect(mod)}"
 
-    apply(mod, func_name, [Map.merge(param, %{key: pid})])
+    apply(mod, :init, [param.reply_token])
 
-    apply(mod, :close, [pid])
+    param = Map.merge(param, apply(mod, :setup, [param]))
+
+    if apply(mod, :callable?, [param]) do
+      apply(mod, :call, [param])
+    else
+      Logger.debug "Command is not callable."
+    end
+
+    apply(mod, :close, [])
   end
-  defp env(), do: Mix.env
 end

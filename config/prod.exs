@@ -18,6 +18,18 @@ config :narou_bot, NarouBotWeb.Endpoint,
   url: [host: "narou-bot.herokuapp.com", port: 80],
   cache_static_manifest: "priv/static/cache_manifest.json"
 
+config :narou_bot, NarouBot.Scheduler,
+  jobs: [
+    {
+      "* * * * *",
+      fn -> NarouBot.JobService.FetchWritersAndCreateNotificationFacts.exec end
+    },
+    {
+      "*/5 * * * *",
+      fn -> NarouBot.JobService.NotificationToUser.exec end
+    }
+  ]
+
 # Do not print debug messages in production
 config :logger, level: :info
 

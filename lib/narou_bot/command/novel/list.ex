@@ -7,10 +7,7 @@ defmodule NarouBot.Command.Novel.List do
     type = param.data.type
     novels = Novels.novel_detail(:all, type, user.id)
 
-    if length(novels) > 0 do
-      render_with_send(:ok, %{novels: novels, type: type}, param.key)
-    else
-      render_with_send(:no_registered, %{type: type}, param.key)
-    end
+    export type: type, novels: novels
+    render_with_send(if length(novels) == 0, do: :ok, else: :no_registered)
   end
 end

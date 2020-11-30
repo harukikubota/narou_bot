@@ -1,21 +1,29 @@
 defmodule NarouBot.Command do
   defmacro __using__(_) do
     quote do
-      alias LineBot.Message
       alias NarouBot.Command.MessageServer, as: MS
       alias NarouBot.Command.Helper
 
-      def init(token),          do: {:ok, pid} = MS.start_link(token)
-      def template(),           do: NarouBot.Command.template_name(__MODULE__)
-      def messages(pid),        do: MS.get_messages(pid)
-      def reply_token(pid),     do: MS.get_reply_token(pid)
-      def render(id, dao, pid), do: template().render(id, dao) |> MS.push(pid)
-      def send(pid),            do: LineBot.send_reply(reply_token(pid), messages(pid))
-      def render_with_send(id, dao, pid) do
-        render(id, dao, pid)
-        send(pid)
+      def init(reply_token),   do: MS.start_link(key(),reply_token)
+      def setup(param),        do: param
+      def callable?(_param),   do: true
+      def call(_param),        do: IO.inspect "override this." # do something
+      def close(),             do: MS.stop(key())
+
+      defoverridable setup: 1, callable?: 1, call: 1
+
+      defp export(vars),        do: Enum.each(vars, fn {k, v} -> MS.push_val(key(), k, v) end)
+      defp render(id),          do: MS.push_message(key(), template().render(id, MS.get_dao(key())))
+      defp send_message(),      do: LineBot.send_reply(reply_token(), messages())
+      defp render_with_send(id) do
+        render(id)
+        send_message()
       end
-      def close(pid), do: MS.stop(pid)
+
+      defp template(),          do: NarouBot.Command.template_name(__MODULE__)
+      defp messages(),          do: MS.get_messages(key())
+      defp reply_token(),       do: MS.get_reply_token(key())
+      defp key(),               do: self()
     end
   end
 
