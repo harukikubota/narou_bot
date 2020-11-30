@@ -35,12 +35,16 @@ defmodule NarouBot.Repo.NovelEpisodes do
   end
 
   def delete_by_novel_param(novel_id, episode_id) do
-    from(
-      ne in NovelEpisode,
-      where: ne.novel_id == ^novel_id and ne.episode_id == ^episode_id and ne.remote_deleted == false
-    )
-    |> first()
-    |> Repo.one()
-    |> Util.exec_delete()
+    record =
+      from(
+        ne in NovelEpisode,
+        where: ne.novel_id == ^novel_id and ne.episode_id == ^episode_id and ne.remote_deleted == false
+      )
+      |> first()
+      |> Repo.one()
+
+    if record do
+      Util.exec_delete(record)
+    end
   end
 end
