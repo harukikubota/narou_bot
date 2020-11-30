@@ -4,6 +4,10 @@ defmodule NarouBot.Template.Utility.Help do
   alias LineBot.Message.Flex, as: F
   import NarouBot.Template.Helper
 
+  def render(:mitaiou, _) do
+    %M.Text{text: "ヘルプは未実装です。しばしお待ちを。。。"}
+  end
+
   def render("list", _) do
     %F{
       altText: "ヘルプ 一覧",
