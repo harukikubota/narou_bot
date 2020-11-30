@@ -7,6 +7,6 @@ defmodule NarouBot.Command.Writer.List do
     writers = Writers.writer_detail(user.id)
 
     export writers: writers
-    render_with_send(if length(writers) == 0, do: :no_registered, else: :ok)
+    render_with_send(unless length(writers) == 0, do: :ok, else: :no_registered)
   end
 end

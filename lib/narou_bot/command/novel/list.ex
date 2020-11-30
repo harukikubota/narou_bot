@@ -8,6 +8,6 @@ defmodule NarouBot.Command.Novel.List do
     novels = Novels.novel_detail(:all, type, user.id)
 
     export type: type, novels: novels
-    render_with_send(if length(novels) == 0, do: :ok, else: :no_registered)
+    render_with_send(unless length(novels) == 0, do: :ok, else: :no_registered)
   end
 end
