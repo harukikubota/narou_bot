@@ -22,7 +22,7 @@ defmodule NarouBot.JobService.ApplyRemoteData do
 
   def exec(type, local, remote) do
     logging(:start, type)
-    data = setup(type, local, remote)
+    data = setup(type, local, remote) |> logging_data()
     update_local_data(type, data)
     |> create_notification_data(type, data)
     logging(:end, type)
@@ -81,6 +81,11 @@ defmodule NarouBot.JobService.ApplyRemoteData do
       notification_target_user_ids: Users.notification_target_users(:delete_writer, writer_id: writer_id),
       writer_id: writer_id
     }
+  end
+
+  def logging_data(data) do
+    IO.inspect(data, label: "logging_data")
+    data
   end
 
 
