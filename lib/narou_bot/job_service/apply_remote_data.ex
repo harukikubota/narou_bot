@@ -63,7 +63,8 @@ defmodule NarouBot.JobService.ApplyRemoteData do
     %{
       notification_target_user_ids: notification_target_user_ids,
       episode_ids_to_delete: episode_ids_to_delete,
-      novel_id: novel_id
+      novel_id: novel_id,
+      remote_created_at: remote.remote_created_at
     }
   end
 
@@ -97,7 +98,14 @@ defmodule NarouBot.JobService.ApplyRemoteData do
   def update_local_data(:new_post_novel, %{novel_attr: attr}), do: Novels.create_with_assoc_episode(attr)
 
   def update_local_data(:delete_novel_episode, data) do
-    Enum.map(data.episode_ids_to_delete, &(NovelEpisodes.delete_by_novel_param(data.novel_id, &1) |> elem(1)))
+    results =
+      Enum.map(data.episode_ids_to_delete, &NovelEpisodes.delete_by_novel_param(data.novel_id, &1))
+      |> Enum.reject(&is_nil/1)
+      |> Enum.map(&elem(&1, 1))
+
+    make_brank_record_if_local_episodes_not_exist(data)
+
+    results
   end
 
   def update_local_data(:delete_novel, data) do
@@ -140,5 +148,16 @@ defmodule NarouBot.JobService.ApplyRemoteData do
   def create_notification_data(_, :delete_writer, data) do
     data.notification_target_user_ids
     |> Enum.each(&(NotificationFacts.create(%{type: :delete_writer, user_id: &1, writer_id: data.writer_id})))
+  end
+
+  defp make_brank_record_if_local_episodes_not_exist(data) do
+    if Enum.empty?(NovelEpisodes.leatest_update_history(data.novel_id)) do
+      %{
+        novel_id: data.novel_id,
+        episode_id: data.episode_ids_to_delete |> Enum.to_list |> hd |> Kernel.-(1),
+        remote_created_at: data.remote_created_at
+      }
+      |> NovelEpisodes.create()
+    end
   end
 end
