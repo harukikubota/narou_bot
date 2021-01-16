@@ -1,6 +1,5 @@
 defmodule NarouBot.Entity.Writer do
   use Ecto.Schema
-  import Ecto.Changeset
   alias NarouBot.Entity.{User, Novel, UserCheckWriter}
 
   schema "writers" do

@@ -44,3 +44,5 @@ config :narou_bot, NarouBot.Scheduler,
       fn -> NarouBot.JobService.NotificationToUser.exec end
     }
   ]
+
+config :phoenix, :json_library, Jason

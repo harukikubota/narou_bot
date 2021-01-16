@@ -10,9 +10,7 @@ defmodule NarouBot.Repo.Novels do
   alias NarouBot.Entity.{
     Novel,
     Writer,
-    UserCheckNovel,
-    NotificationInfo,
-    Helper
+    UserCheckNovel
   }
   require Logger
 

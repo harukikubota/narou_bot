@@ -1,6 +1,5 @@
 defmodule NarouBot.Entity.NovelEpisode do
   use Ecto.Schema
-  import Ecto.Changeset
   alias NarouBot.Entity.Novel
 
   schema "novel_episodes" do

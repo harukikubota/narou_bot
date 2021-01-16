@@ -15,8 +15,6 @@ defmodule NarouBot.Entity.UserCheckNovel do
     timestamps()
   end
 
-  @types ~w/update_notify read_later/
-
   def ch_update_notify(struct, params) do
     struct
     |> cast(params, [:user_id, :novel_id, :type])
