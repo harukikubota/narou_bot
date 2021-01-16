@@ -5,19 +5,39 @@ defmodule NarouBot.Repo.UsersCheckWriters do
   alias NarouBot.Entity.UserCheckWriter
 
   def registered?(user_id, writer_id) do
-    !!(from(UserCheckWriter, where: [user_id: ^user_id, writer_id: ^writer_id]) |> first() |> Repo.one())
+    from(
+      UserCheckWriter,
+      where: [
+        user_id: ^user_id, writer_id: ^writer_id
+      ]
+    )
+    |> first()
+    |> Repo.one()
+    |> if(do: true, else: false)
   end
 
   def user_register_count(user_id) do
-    Repo.one from uc in UserCheckWriter, where: uc.user_id == ^user_id, select: count()
+    from(
+      uc in UserCheckWriter,
+      where: uc.user_id == ^user_id,
+      select: count()
+    )
+    |> Repo.one
   end
 
   def link_to(user_id, writer_id) do
-    UserCheckWriter.changeset(%UserCheckWriter{}, %{user_id: user_id, writer_id: writer_id}) |> Repo.insert!
+    UserCheckWriter.changeset(%UserCheckWriter{}, %{user_id: user_id, writer_id: writer_id})
+    |> Repo.insert!
   end
 
   def unlink_to(user_id, writer_id) do
-    from(UserCheckWriter, where: [user_id: ^user_id, writer_id: ^writer_id]) |> Repo.delete_all
+    from(
+      UserCheckWriter,
+      where: [
+        user_id: ^user_id,
+        writer_id: ^writer_id]
+    )
+    |> Repo.delete_all
   end
 
   def unlink_all(writer_id) do
