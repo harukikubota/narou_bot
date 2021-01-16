@@ -11,13 +11,15 @@ defmodule NarouBot.Command.Novel.Update do
     novel = Novels.find(param.data.novel_id)
     restart_episode_id = param.data.episode_id
 
-    dao = %{novel: novel, restart_episode_id: restart_episode_id}
+    export novel: novel, restart_episode_id: restart_episode_id
 
-    case UserCallableState.judge(:read_later, :update, %{user_id: user.id, novel_id: novel.id}) do
-      {:error} -> render_with_send(:error, dao, param.key)
+    type = case UserCallableState.judge(:read_later, :update, %{user_id: user.id, novel_id: novel.id}) do
+      {:error} -> :error
       {:ok}    ->
         UsersCheckNovels.update_episode_id(user.id, novel.id, restart_episode_id)
-        render_with_send(:ok, dao, param.key)
+        :ok
     end
+
+    render_with_send type
   end
 end

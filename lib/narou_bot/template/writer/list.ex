@@ -6,7 +6,7 @@ defmodule NarouBot.Template.Writer.List do
 
   def render(:no_registered, _), do: %M.Text{text: "更新通知に登録している作者が存在しません。\n\n追加するには作者マイページのURLを送信してください。"}
 
-  def render(:ok, writers) do
+  def render(:ok, %{writers: writers}) do
     writers
     |> Enum.chunk_every(10)
     |> Enum.map(&col_template/1)

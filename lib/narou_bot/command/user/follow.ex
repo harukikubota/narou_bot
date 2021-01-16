@@ -3,11 +3,13 @@ defmodule NarouBot.Command.User.Follow do
   alias NarouBot.Repo.Users
 
   def call(param) do
-    case Users.find_or_create_by(param.user_id) do
-      {:ok, _}      -> render_with_send(:hello, nil, param.key)
+    type = case Users.find_or_create_by(param.user_id) do
+      {:ok, _}      -> :hello
       {:created, user} ->
         Users.enable_to(user)
-        render_with_send(:welcome_back, nil, param.key)
+        :welcome_back
     end
+
+    render_with_send type
   end
 end

@@ -6,7 +6,7 @@ defmodule NarouBot.Template.Writer.Show do
   alias NarouBot.Template.Writer.Helper, as: WHelper
 
 
-  def render(type, writer) do
+  def render(type, %{writer: writer}) do
     %F{
       altText: writer.name,
       contents: template(type, writer)

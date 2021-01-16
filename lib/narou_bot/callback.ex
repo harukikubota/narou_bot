@@ -37,7 +37,7 @@ defmodule NarouBot.Callback do
 
   @spec invoke(any, map) :: {:ok, any} | {:error, any}
   defp invoke(mod_symbols, param) do
-    to_mod(mod_symbols) |> @invoker.invoke(:call, param)
+    to_mod(mod_symbols) |> @invoker.invoke(param)
   end
 
   defp to_mod(mod_symbols) do
