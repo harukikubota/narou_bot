@@ -47,7 +47,7 @@ defmodule NarouBot.JobService.FetchWritersAndCreateNotificationFacts do
   defp fetch_and_apply_remote_data(writer_ids) do
     spawn(fn ->
       writer_ids
-      |> (fn ids -> Repo.Narou.find_by_userid(:novels, ids, [:n, :t, :ga, :gl, :u]) end).()
+      |> Repo.Narou.find_by_userid([:n, :t, :ga, :gl, :u])
       |> format!()
       |> grouping_writer()
       |> tagging_with(load_writers(writer_ids))

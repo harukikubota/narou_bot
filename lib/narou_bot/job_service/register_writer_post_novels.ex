@@ -25,7 +25,7 @@ defmodule NarouBot.JobService.RegisterWriterPostNovels do
   def target(writer_id), do: Writers.select_for_register_post_novels(writer_id)
 
   def fetch_writer_novels(remote_id) do
-    case Repo.Narou.find_by_userid(:novels, remote_id, :name) do
+    case Repo.Narou.find_by_userid(remote_id) do
       {:ok, _, results} -> results
     end
   end

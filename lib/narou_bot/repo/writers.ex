@@ -1,10 +1,9 @@
 defmodule NarouBot.Repo.Writers do
   alias NarouBot.Repo
-  alias Repo.{Util, Novels, NovelEpisodes}
+  alias Repo.{Util, NovelEpisodes}
   alias NarouBot.Entity.{
     Writer,
     Novel,
-    NovelEpisode,
     UserCheckNovel
   }
   import Ecto.Query
@@ -16,7 +15,7 @@ defmodule NarouBot.Repo.Writers do
     case is_nil(record) do
       false -> {:ok, record}
       true ->
-        case Repo.Narou.find_by_writer_id(remote_id) do
+        case Repo.Narou.find_by_userid_for_writer_detail(remote_id) do
           %{name: name} ->
             writer = create(%{name: name, remote_id: remote_id})
 
