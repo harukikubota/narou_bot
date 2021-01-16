@@ -34,7 +34,7 @@ defmodule NarouBot.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:narou, git: "https://github.com/harukikubota/narou.git", tag: "0.2.3", override: true},
+      {:narou, git: "https://github.com/harukikubota/narou.git", tag: "0.2.5", override: true},
       {:phoenix, github: "phoenixframework/phoenix", branch: "master", override: true},
       {:phoenix_pubsub, "~> 2.0"},
       {:phoenix_ecto, ">= 4.1.0"},
