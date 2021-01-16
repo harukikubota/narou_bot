@@ -131,26 +131,6 @@ defmodule NarouBot.Template.JobService.Notificate_data do
     }
   end
 
-  defp episode_link(novel, episode) do
-    %F.Box{
-      layout: :horizontal,
-      contents: [
-        %F.Text{
-          text: "#{episode.episode_id}話",
-          action: %M.Action.URI{
-            uri: add_opt_open_url_link(NHelper.make_novel_url(novel.ncode, episode.episode_id))
-          },
-          color: "#325b85",
-          flex: 3
-        },
-        %F.Text{
-          text: format_date_yymmddhhmi(episode.remote_created_at),
-          flex: 5
-        }
-      ]
-    }
-  end
-
   def body(:delete_novel_episode, %{novel: novel, episodes: episodes}) do
     episode_id =
       if length(episodes) == 1 do
@@ -283,4 +263,23 @@ defmodule NarouBot.Template.JobService.Notificate_data do
     }
   end
 
+  defp episode_link(novel, episode) do
+    %F.Box{
+      layout: :horizontal,
+      contents: [
+        %F.Text{
+          text: "#{episode.episode_id}話",
+          action: %M.Action.URI{
+            uri: add_opt_open_url_link(NHelper.make_novel_url(novel.ncode, episode.episode_id))
+          },
+          color: "#325b85",
+          flex: 3
+        },
+        %F.Text{
+          text: format_date_yymmddhhmi(episode.remote_created_at),
+          flex: 5
+        }
+      ]
+    }
+  end
 end

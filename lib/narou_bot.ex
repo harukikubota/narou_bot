@@ -13,6 +13,15 @@ defmodule NarouBot do
     end
   end
 
+  def template do
+    quote do
+      import NarouBot.Template.Helper
+
+      alias LineBot.Message
+      alias LineBot.Message.Flex
+    end
+  end
+
   @doc """
   When used, dispatch to the appropriate command/template/etc.
   """

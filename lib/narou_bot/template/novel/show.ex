@@ -144,21 +144,6 @@ defmodule NarouBot.Template.Novel.Show do
     }
   end
 
-  def footer_bottom_area("update_notify", novel) do
-    %F.Box{
-      layout: :horizontal,
-      contents: [
-        %F.Button{
-          action: %M.Action.Postback{
-            data: postback_data(%{action: "/novel/switch_notification", novel_id: novel.id}),
-            label: "通知" <> NHelper.notification_flag_to_jp(!novel.check_user.do_notify)
-          }
-        },
-        button_novel_delete(novel.id, "update_notify")
-      ]
-    }
-  end
-
   def footer_top_area("read_later", novel) do
     %F.Box{
       layout: :horizontal,
@@ -170,6 +155,21 @@ defmodule NarouBot.Template.Novel.Show do
           }
         },
         button_novel_delete(novel.id, "read_later")
+      ]
+    }
+  end
+
+  def footer_bottom_area("update_notify", novel) do
+    %F.Box{
+      layout: :horizontal,
+      contents: [
+        %F.Button{
+          action: %M.Action.Postback{
+            data: postback_data(%{action: "/novel/switch_notification", novel_id: novel.id}),
+            label: "通知" <> NHelper.notification_flag_to_jp(!novel.check_user.do_notify)
+          }
+        },
+        button_novel_delete(novel.id, "update_notify")
       ]
     }
   end

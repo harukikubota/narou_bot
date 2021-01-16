@@ -2,7 +2,7 @@ defmodule NarouBot.Template.Novel.Common do
   use NarouBot.Template
   alias LineBot.Message, as: M
 
-  def render(:invalid_operation, dao), do: %M.Text{text: "無効な操作です。"}
+  def render(:invalid_operation, _dao), do: %M.Text{text: "無効な操作です。"}
 
   def to_jp(type) do
     case type do
