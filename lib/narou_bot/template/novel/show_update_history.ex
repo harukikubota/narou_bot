@@ -28,7 +28,7 @@ defmodule NarouBot.Template.Novel.ShowUpdateHistory do
   def body(novel, histories) do
     %F.Box{
       layout: :vertical,
-      contents: Enum.map(histories, &(history(novel, &1)))
+      contents: Enum.map(histories, &history(novel, &1))
     }
   end
 

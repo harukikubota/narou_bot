@@ -23,7 +23,7 @@ defmodule NarouBot.Repo.Narou do
   @spec find_by_ncodes(list(atom), list(atom)) :: {:ok, integer(), [map()]} | {:nodata}
   def find_by_ncodes(ncodes, cols \\ [:ncode, :general_all_no])
     when is_list(ncodes) do
-    unless Enum.all?(ncodes, &is_ncode(&1)), do: raise ArgumentError, "require `ncode` : #{inspect(ncodes)}."
+    unless Enum.all?(ncodes, &is_ncode/1), do: raise ArgumentError, "require `ncode` : #{inspect(ncodes)}."
 
     from(:novel, select: cols, where: [ncode: ncodes], order: :ncodedesc)
     |> _exec!

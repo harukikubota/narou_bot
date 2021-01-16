@@ -127,7 +127,7 @@ defmodule NarouBot.Template.Novel.Show do
   def footer(type, novel) do
     %F.Box{
       layout: :vertical,
-      contents: [footer_top_area(type, novel), footer_bottom_area(type, novel)] |> Enum.reject(&(is_nil &1))
+      contents: [footer_top_area(type, novel), footer_bottom_area(type, novel)] |> Enum.reject(&is_nil/1)
     }
   end
 

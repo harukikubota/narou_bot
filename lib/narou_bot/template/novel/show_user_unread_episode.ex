@@ -60,7 +60,7 @@ defmodule NarouBot.Template.Novel.ShowUserUnreadEpisode do
   def render(:unread_episodes, %{novel: novel, unread_episodes: unread_episodes}) do
     get_episode = fn fun -> fun.(unread_episodes).novel_episode end
     episodes =
-      [&(List.last(&1)), &(hd(&1))]
+      [&List.last/1, &hd/1]
       |> Enum.map(&(get_episode.(&1)))
       |> Enum.uniq_by(&(&1.id))
       |> Enum.zip([:new, :old])

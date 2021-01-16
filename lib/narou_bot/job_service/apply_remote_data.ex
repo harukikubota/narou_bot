@@ -92,7 +92,7 @@ defmodule NarouBot.JobService.ApplyRemoteData do
 
   def update_local_data(:novel_new_episode, data) do
     data.episode_ids_to_create
-    |> Enum.map(&(NovelEpisodes.create(%{novel_id: data.novel_id, episode_id: &1, remote_created_at: data.remote_created_at})))
+    |> Enum.map(&NovelEpisodes.create(%{novel_id: data.novel_id, episode_id: &1, remote_created_at: data.remote_created_at}))
   end
 
   def update_local_data(:new_post_novel, %{novel_attr: attr}), do: Novels.create_with_assoc_episode(attr)
@@ -124,30 +124,30 @@ defmodule NarouBot.JobService.ApplyRemoteData do
   def create_notification_data(created_novel_episodes, :novel_new_episode, data) do
     Enum.each(created_novel_episodes, fn %{id: novel_episode_id} ->
       data.notification_target_user_ids
-      |> Enum.each(&(NotificationFacts.create(%{type: :novel_new_episode, user_id: &1, novel_episode_id: novel_episode_id})))
+      |> Enum.each(&NotificationFacts.create(%{type: :novel_new_episode, user_id: &1, novel_episode_id: novel_episode_id}))
     end)
   end
 
   def create_notification_data(%{id: novel_id}, :new_post_novel, data) do
     data.notification_target_user_ids
-    |> Enum.each(&(NotificationFacts.create(%{type: :new_post_novel, user_id: &1, novel_id: novel_id})))
+    |> Enum.each(&NotificationFacts.create(%{type: :new_post_novel, user_id: &1, novel_id: novel_id}))
   end
 
   def create_notification_data(deleted_novel_episodes, :delete_novel_episode, data) do
     Enum.each(deleted_novel_episodes, fn %{id: novel_episode_id} ->
       data.notification_target_user_ids
-      |> Enum.each(&(NotificationFacts.create(%{type: :delete_novel_episode, user_id: &1, novel_episode_id: novel_episode_id})))
+      |> Enum.each(&NotificationFacts.create(%{type: :delete_novel_episode, user_id: &1, novel_episode_id: novel_episode_id}))
     end)
   end
 
   def create_notification_data(_, :delete_novel, data) do
     data.notification_target_user_ids
-    |> Enum.each(&(NotificationFacts.create(%{type: :delete_novel, user_id: &1, novel_id: data.novel_id})))
+    |> Enum.each(&NotificationFacts.create(%{type: :delete_novel, user_id: &1, novel_id: data.novel_id}))
   end
 
   def create_notification_data(_, :delete_writer, data) do
     data.notification_target_user_ids
-    |> Enum.each(&(NotificationFacts.create(%{type: :delete_writer, user_id: &1, writer_id: data.writer_id})))
+    |> Enum.each(&NotificationFacts.create(%{type: :delete_writer, user_id: &1, writer_id: data.writer_id}))
   end
 
   defp make_brank_record_if_local_episodes_not_exist(data) do

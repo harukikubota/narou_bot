@@ -22,7 +22,8 @@ defmodule NarouBot.Repo.UsersCheckWriters do
 
   def unlink_all(writer_id) do
     users = Users.notification_target_users :delete_writer, writer_id: writer_id
-    Enum.each(users, &(unlink_to(&1, writer_id)))
+
+    Enum.each(users, &unlink_to(&1, writer_id))
     users
   end
 end

@@ -47,7 +47,7 @@ defmodule NarouBot.Template.JobService.Notificate_data do
     %F{
       altText: "更新通知",
       contents: %F.Carousel{
-        contents: Enum.map(notification_facts, &(template_for(&1.type, &1)))
+        contents: Enum.map(notification_facts, &template_for(&1.type, &1))
       }
     }
   end
@@ -127,7 +127,7 @@ defmodule NarouBot.Template.JobService.Notificate_data do
             label: truncate_str(novel.title)
           }
         }
-      ] ++ Enum.map(episodes, &(episode_link(novel, &1)))
+      ] ++ Enum.map(episodes, &episode_link(novel, &1))
     }
   end
 

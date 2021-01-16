@@ -21,11 +21,11 @@ defmodule NarouBot.Command.MessageServer do
   defp get_property(pid, key), do: Agent.get(to_key_name(pid), &Map.get(&1, key))
 
   def push_message(pid, messages) do
-    update_property(pid, :messages, &(&1 ++ List.wrap(messages)))
+    update_property(pid, :messages, &Kernel.++(&1, List.wrap(messages)))
   end
 
   def push_val(pid, val_name, val) do
-    update_property(pid, :dao, &(Map.merge(&1, %{val_name => val})))
+    update_property(pid, :dao, &Map.merge(&1, %{val_name => val}))
   end
 
   defp set_reply_token(pid, reply_token) do

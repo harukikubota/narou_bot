@@ -18,7 +18,7 @@ defmodule NarouBot.JobService.RegisterWriterPostNovels do
     fetch_writer_novels(writer.remote_id)
     |> Enum.reject(&(&1.ncode in (Map.get(writer, :novels)|> Enum.map(fn n -> n.ncode end))))
     |> Enum.map(&format!/1)
-    |> Enum.map(&(Map.merge(&1, %{writer_id: writer.id})))
+    |> Enum.map(&Map.merge(&1, %{writer_id: writer.id}))
     |> Enum.map(&create/1)
   end
 

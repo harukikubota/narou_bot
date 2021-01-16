@@ -16,9 +16,10 @@ defmodule NarouBot.Template.Helper do
 
     unless Regex.match?(~r/^\/?[a-z_\/]+[a-z]+$/, action), do: raise "actionの引数が無効 /path/to/action"
 
-    in_name = [Mix.Project.config[:app] |> Atom.to_string, "command"] ++ (action |> String.split("/") |> Enum.reject(&(&1 == "")))
-    |> Enum.map(&(Macro.camelize(&1)))
-    |> Module.concat
+    in_name =
+      [Mix.Project.config[:app] |> Atom.to_string, "command"] ++ (action |> String.split("/") |> Enum.reject(&(&1 == "")))
+      |> Enum.map(&Macro.camelize/1)
+      |> Module.concat
 
     {:module, _} = Code.ensure_loaded(in_name)
     unless function_exported?(in_name, :call, 1), do: raise "Commandではないです。 #{in_name}"

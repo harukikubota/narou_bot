@@ -64,7 +64,7 @@ defmodule NarouBot.Repo.Novels do
   end
 
   def add_col_unread_count(cols, :all, "update_notify") do
-    Enum.map(cols, &(add_col_unread_count(&1, :one, "update_notify")))
+    Enum.map(cols, &add_col_unread_count(&1, :one, "update_notify"))
   end
 
   def add_col_unread_count(col, :one, "update_notify") do
