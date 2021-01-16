@@ -6,7 +6,7 @@ defmodule NarouBot.Command.Novel.ShowUserUnreadEpisode do
   }
 
   def setup(param) do
-    user = Helper.current_user(param.user_id)
+    user = current_user(param)
     novel = Novels.novel_detail(:one, user.id, param.data.novel_id)
     %{
       user: user,
@@ -22,7 +22,7 @@ defmodule NarouBot.Command.Novel.ShowUserUnreadEpisode do
     export novel: novel
 
     type = cond do
-      on_notify != false      -> :error
+      on_notify               -> :error
       novel.unread_count == 0 -> :no_unread
       on_confirm              -> :confirm
       true ->
