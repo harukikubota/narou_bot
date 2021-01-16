@@ -1,8 +1,6 @@
 defmodule NarouBot.Repo.NovelEpisodes do
-  import Ecto.Query
-  alias NarouBot.Repo
-  alias Repo.Util
-  alias NarouBot.Entity.Helper
+  use NarouBot.Repo
+
   alias NarouBot.Entity.NovelEpisode
 
   def novel_last_episodes_query do
@@ -25,26 +23,22 @@ defmodule NarouBot.Repo.NovelEpisodes do
   def create(%{novel_id: novel_id, episode_id: episode_id, remote_created_at: created}) do
     %NovelEpisode{}
     |> Map.merge(%{novel_id: novel_id, episode_id: episode_id, remote_created_at: created})
-    |> Helper.format_jpdate_to_utc(:remote_created_at)
+    |> format_jpdate_to_utc(:remote_created_at)
     |> Repo.insert!
   end
 
   def delete(id) do
     Repo.get(NovelEpisode, id)
-    |> Util.exec_delete()
+    |> exec_delete()
   end
 
   def delete_by_novel_param(novel_id, episode_id) do
-    record =
-      from(
-        ne in NovelEpisode,
-        where: ne.novel_id == ^novel_id and ne.episode_id == ^episode_id and ne.remote_deleted == false
-      )
-      |> first()
-      |> Repo.one()
-
-    if record do
-      Util.exec_delete(record)
-    end
+    from(
+      ne in NovelEpisode,
+      where: ne.novel_id == ^novel_id and ne.episode_id == ^episode_id and ne.remote_deleted == false
+    )
+    |> first()
+    |> Repo.one()
+    |> (fn rec -> if(rec, do: exec_delete(rec)) end).()
   end
 end

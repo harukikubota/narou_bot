@@ -1,6 +1,6 @@
 defmodule NarouBot.Repo.Users do
-  import Ecto.Query
-  alias NarouBot.Repo
+  use NarouBot.Repo
+
   alias NarouBot.Entity.User
 
   def find_or_create_by(line_id) do

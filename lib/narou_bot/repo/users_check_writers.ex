@@ -1,8 +1,8 @@
 defmodule NarouBot.Repo.UsersCheckWriters do
-  alias NarouBot.Repo
+  use NarouBot.Repo
+
   alias Repo.Users
-  alias NarouBot.Entity.{UserCheckWriter}
-  import Ecto.Query
+  alias NarouBot.Entity.UserCheckWriter
 
   def registered?(user_id, writer_id) do
     !!(from(UserCheckWriter, where: [user_id: ^user_id, writer_id: ^writer_id]) |> first() |> Repo.one())

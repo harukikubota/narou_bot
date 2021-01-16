@@ -1,6 +1,6 @@
 defmodule NarouBot.Repo.RichMenus do
-  import Ecto.Query
-  alias NarouBot.Repo
+  use NarouBot.Repo
+
   alias NarouBot.Entity.RichMenu
 
   def all, do: Repo.all(RichMenu)

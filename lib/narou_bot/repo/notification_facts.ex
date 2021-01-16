@@ -1,6 +1,6 @@
 defmodule NarouBot.Repo.NotificationFacts do
-  import Ecto.Query
-  alias NarouBot.Repo
+  use NarouBot.Repo
+
   alias NarouBot.Entity.{
     NovelEpisode,
     UserCheckNovel,

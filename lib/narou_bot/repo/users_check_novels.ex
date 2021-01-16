@@ -1,8 +1,8 @@
 defmodule NarouBot.Repo.UsersCheckNovels do
-  alias NarouBot.Repo
+  use NarouBot.Repo
+
   alias NarouBot.Repo.Users
   alias NarouBot.Entity.{UserCheckNovel, Novel}
-  import Ecto.Query
 
   def registered?(user_id, novel_id) do
     from(UserCheckNovel, where: [user_id: ^user_id, novel_id: ^novel_id]) |> Repo.exists?

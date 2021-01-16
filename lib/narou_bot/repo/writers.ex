@@ -1,13 +1,14 @@
 defmodule NarouBot.Repo.Writers do
-  alias NarouBot.Repo
-  alias Repo.{Util, NovelEpisodes}
+  use NarouBot.Repo
+
+  alias Repo.NovelEpisodes
   alias NarouBot.Entity.{
     Writer,
     Novel,
     UserCheckNovel
   }
-  import Ecto.Query
   alias NarouBot.JobService.RegisterWriterPostNovels, as: Job
+
   require Logger
 
   def find_or_create_by(remote_id) do
@@ -53,10 +54,10 @@ defmodule NarouBot.Repo.Writers do
 
   def delete(id) do
     writer = Repo.get(Writer, id)
-    Util.exec_delete(writer)
+    exec_delete(writer)
 
     from(n in Novel, where: n.writer_id == ^id)
-    |> Util.exec_delete_all()
+    |> exec_delete_all()
 
     writer
   end

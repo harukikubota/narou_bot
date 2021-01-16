@@ -22,6 +22,16 @@ defmodule NarouBot do
     end
   end
 
+  def repo do
+    quote do
+      alias NarouBot.Repo
+
+      import Ecto.Query
+      import Repo.Util
+      import NarouBot.Entity.Helper
+    end
+  end
+
   @doc """
   When used, dispatch to the appropriate command/template/etc.
   """

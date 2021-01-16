@@ -1,6 +1,6 @@
 defmodule NarouBot.Repo.Novels do
-  import Ecto.Query
-  alias NarouBot.Repo
+  use NarouBot.Repo
+
   alias Repo.{
     Util,
     NovelEpisodes,
