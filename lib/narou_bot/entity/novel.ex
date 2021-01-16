@@ -4,18 +4,17 @@ defmodule NarouBot.Entity.Novel do
   alias NarouBot.Entity.{User, NovelEpisode, Writer, UserCheckNovel}
 
   schema "novels" do
-    field :ncode, :string
-    field :title, :string
-    field :remote_deleted, :boolean, default: false
-    field :remote_deleted_at, :utc_datetime
-
-    timestamps()
-
     belongs_to   :writer,       Writer
     has_one      :last_episode, NovelEpisode
     has_one      :check_user,   UserCheckNovel
     has_many     :episodes,     NovelEpisode
     many_to_many :users,        User, join_through: UserCheckNovel
+
+    field :ncode,             :string
+    field :title,             :string
+    field :remote_deleted,    :boolean, default: false
+    field :remote_deleted_at, :utc_datetime
+    timestamps()
   end
 
   def changeset(novel, attrs) do
