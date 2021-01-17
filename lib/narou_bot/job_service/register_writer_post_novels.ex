@@ -4,6 +4,7 @@ defmodule NarouBot.JobService.RegisterWriterPostNovels do
     Novels,
     Writers
   }
+  alias NarouBot.Entity.Novel
   require Logger
 
   def exec(writer_id) do
@@ -33,13 +34,17 @@ defmodule NarouBot.JobService.RegisterWriterPostNovels do
   def format!(%{general_all_no: episode_id,
                 general_lastup: remote_created_at,
                 ncode:          ncode,
-                title:          title
+                title:          title,
+                noveltype:      novel_type,
+                end:            finished
               }) do
     %{
-      episode_id: episode_id,
+      episode_id:        episode_id,
       remote_created_at: remote_created_at,
-      ncode: ncode,
-      title: title
+      ncode:             ncode,
+      title:             title,
+      is_short_story:    Novel.conv_is_short_story(novel_type),
+      finished:          Novel.conv_finished(finished)
     }
   end
 

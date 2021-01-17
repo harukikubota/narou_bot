@@ -1,6 +1,8 @@
 defmodule NarouBot.JobService.FetchWritersAndCreateNotificationFacts do
   alias NarouBot.Repo
   alias NarouBot.JobService.JobControlActivity
+  alias NarouBot.Entity.Novel
+
   require Logger
 
   @child NarouBot.JobService.ApplyRemoteData
@@ -47,7 +49,7 @@ defmodule NarouBot.JobService.FetchWritersAndCreateNotificationFacts do
   defp fetch_and_apply_remote_data(writer_ids) do
     spawn(fn ->
       writer_ids
-      |> Repo.Narou.find_by_userid([:n, :t, :ga, :gl, :u])
+      |> Repo.Narou.find_by_userid([:n, :t, :ga, :gl, :u, :nt, :e])
       |> format!()
       |> grouping_writer()
       |> tagging_with(load_writers(writer_ids))
@@ -76,13 +78,14 @@ defmodule NarouBot.JobService.FetchWritersAndCreateNotificationFacts do
 
             tagging_novel(get_novel.(writer.novels), get_novel.(remote_data))
           end)
+          |> Enum.flat_map(&(&1))
       end
     end)
     |> Enum.flat_map(&(&1))
   end
 
   defp tagging_novel(local, remote) do
-    cond do
+    (cond do
       is_nil(remote) -> tagged_fact :delete_novel, local, nil
       is_nil(local)  -> tagged_fact :new_post_novel, nil, remote
       true           ->
@@ -94,8 +97,12 @@ defmodule NarouBot.JobService.FetchWritersAndCreateNotificationFacts do
           local_episode_id == remote.episode_id -> :novel_no_update
         end
 
-        tagged_fact tag, local, remote
-    end
+        if(remote.finished and !remote.is_short_story and !local.finished,
+          do:   [tagged_fact(:novel_end, local, nil)],
+          else: []
+        )
+        |> Kernel.++([tagged_fact(tag, local, remote)])
+    end) |> List.wrap
   end
 
   defp tagged_fact(tag, local, remote), do: {tag, %{local: local, remote: remote}}
@@ -105,14 +112,15 @@ defmodule NarouBot.JobService.FetchWritersAndCreateNotificationFacts do
   defp create_notification_facts(tagged_info), do: spawn(@child, :start, [tagged_info])
 
   defp format!({:ok, _, fetch_facts}) do
-    fetch_facts
-    |> Enum.map(fn data ->
+    Enum.map(fetch_facts, fn data ->
       %{
-        episode_id: data.general_all_no,
+        episode_id:        data.general_all_no,
         remote_created_at: data.general_lastup,
-        ncode: data.ncode,
-        title: data.title,
-        writer_remote_id: data.userid
+        ncode:             data.ncode,
+        title:             data.title,
+        writer_remote_id:  data.userid,
+        finished:          Novel.conv_finished(data.end),
+        is_short_story:    Novel.conv_is_short_story(data.noveltype)
       }
     end)
   end

@@ -7,7 +7,7 @@ defmodule NarouBot.Template.Novel.ReceiveNovelUrl do
   def render(:no_register, dao) do
     %{
       title: "未登録小説",
-      actions: [action(:read_later_add, dao), action(:update_notify_add, dao)],
+      actions: actions(:no_register, dao),
       date: format_date_yymmddhhmi(dao.novel.remote_created_at)
     } |> Map.merge(dao)
     |> _template()
@@ -16,11 +16,7 @@ defmodule NarouBot.Template.Novel.ReceiveNovelUrl do
   def render(:registered_read_later, dao) do
     %{
       title: "後で読む小説",
-      actions: [
-        action(:read_later_update, dao),
-        action(:read_later_delete, dao),
-        action(:read_later_change, dao)
-      ],
+      actions: actions(:registered_read_later, dao),
       date: format_date_yymmddhhmi(dao.novel.remote_created_at)
     } |> Map.merge(dao)
     |> _template()
@@ -29,7 +25,7 @@ defmodule NarouBot.Template.Novel.ReceiveNovelUrl do
   def render(:registered_update_notify, dao) do
     %{
       title: "更新通知小説",
-      actions: [action(:update_notify_delete, dao)],
+      actions: actions(:registered_update_notify, dao),
       date: format_date_yymmddhhmi(dao.novel.remote_created_at)
     } |> Map.merge(dao)
     |> _template()
@@ -37,6 +33,36 @@ defmodule NarouBot.Template.Novel.ReceiveNovelUrl do
 
   def render(:no_data, _) do
     %M.Text{text: "存在しない小説か、作者によって検索除外に設定されています。"}
+  end
+
+  def actions(type, dao) do
+    case type do
+      :no_register ->
+        [
+          action(:read_later_add, dao)
+        ] ++ (
+          unless dao.novel.finished do
+            [action(:update_notify_add, dao)]
+          else
+            []
+          end
+        )
+
+      :registered_read_later ->
+        [
+          action(:read_later_update, dao),
+          action(:read_later_delete, dao)
+        ] ++ (
+          unless dao.novel.finished do
+            [action(:read_later_change, dao)]
+          else
+            []
+          end
+        )
+
+      :registered_update_notify ->
+        [action(:update_notify_delete, dao)]
+    end
   end
 
   defp action(:read_later_add, dao) do
@@ -96,11 +122,21 @@ defmodule NarouBot.Template.Novel.ReceiveNovelUrl do
                       text:  "最終更新日 #{format_date_yymmddhhmi(dao.novel.remote_created_at)}",
                       wrap:  true
                     },
-                    %F.Text{
-                      align: :center,
-                      color: "#e3a368",
-                      gravity: :center,
-                      text:  "最新話 #{dao.novel.episode_id}"
+                    %F.Box{
+                      layout: :vertical,
+                      contents: [
+                        %F.Text{
+                          align:   :center,
+                          gravity: :center,
+                          text: novel_type(dao.novel)
+                        },
+                        %F.Text{
+                          align:   :center,
+                          color:   "#e3a368",
+                          gravity: :center,
+                          text:    "最新話 #{dao.novel.episode_id}"
+                        }
+                      ]
                     }
                   ]
                 }
@@ -127,5 +163,13 @@ defmodule NarouBot.Template.Novel.ReceiveNovelUrl do
       height: :sm,
       style: :link
     }
+  end
+
+  def novel_type(novel) do
+    cond do
+      novel.is_short_story -> "短編"
+      novel.finished       -> "完結"
+      true                 -> "連載"
+    end
   end
 end

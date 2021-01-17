@@ -12,6 +12,8 @@ defmodule NarouBot.Entity.Novel do
 
     field :ncode,             :string
     field :title,             :string
+    field :finished,          :boolean, default: false
+    field :is_short_story,    :boolean, default: false
     field :remote_deleted,    :boolean, default: false
     field :remote_deleted_at, :utc_datetime
     timestamps()
@@ -30,5 +32,29 @@ defmodule NarouBot.Entity.Novel do
     novel
     |> cast(attrs, [:remote_deleted, :remote_deleted_at])
     |> validate_required([:remote_deleted, :remote_deleted_at])
+  end
+
+  def conv_is_short_story(novel_type) do
+    case novel_type do
+      2 -> true
+      1 -> false
+      _ -> raise "Unexpected value. novel_type: #{novel_type}"
+    end
+  end
+
+  def conv_finished(end_val) do
+    case end_val do
+      0 -> true
+      1 -> false
+      _ -> raise "Unexpected value. end: #{end_val}"
+    end
+  end
+
+  @doc """
+      更新確認対象か？
+  """
+  @spec is_subject_to_update_check(%__MODULE__{}) :: boolean()
+  def is_subject_to_update_check(self) do
+    self.finished
   end
 end

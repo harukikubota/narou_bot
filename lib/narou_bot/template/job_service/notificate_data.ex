@@ -213,9 +213,8 @@ defmodule NarouBot.Template.JobService.Notificate_data do
   end
 
   def body(:new_post_novel, %{writer: writer, novel: novel}) do
-    %F.Box{
-      layout: :vertical,
-      contents: [
+    contents =
+      [
         %F.Button{
           action: %M.Action.Postback{
             data: postback_data(%{action: "/writer/show", writer_id: writer.id}),
@@ -236,30 +235,60 @@ defmodule NarouBot.Template.JobService.Notificate_data do
           }
         }
       ]
+
+    contents =
+      if novel.is_short_story do
+        contents ++
+          [
+            %F.Box{
+              layout: :vertical,
+              contents: [
+                %F.Text{
+                  text: "・短編",
+                  align: :center
+                }
+              ]
+            }
+          ]
+      else
+        contents
+      end
+
+    %F.Box{
+      layout: :vertical,
+      contents: contents
     }
   end
 
   def footer(:new_post_novel, %{novel: novel}) do
+    contents =
+      [%F.Button{
+        action: %M.Action.Postback{
+          data: postback_data(%{action: "/novel/add", novel_id: novel.id, episode_id: 1, type: :read_later}),
+          label: "後で読むに追加する"
+        },
+        height: :sm,
+        style: :link
+      }]
+
+    contents =
+      unless novel.finished do
+        contents ++
+          [%F.Button{
+            action: %M.Action.Postback{
+              data: postback_data(%{action: "/novel/add", novel_id: novel.id, type: :update_notify}),
+              label: "更新通知に追加する"
+            },
+            height: :sm,
+            style: :link
+          }]
+      else
+        contents
+      end
+
     %F.Box{
       layout: :vertical,
-      contents: [
-        %F.Button{
-          action: %M.Action.Postback{
-            data: postback_data(%{action: "/novel/add", novel_id: novel.id, type: :update_notify}),
-            label: "更新通知に追加する"
-          },
-          height: :sm,
-          style: :link
-        },
-        %F.Button{
-          action: %M.Action.Postback{
-            data: postback_data(%{action: "/novel/add", novel_id: novel.id, episode_id: 1, type: :read_later}),
-            label: "後で読むに追加する"
-          },
-          height: :sm,
-          style: :link
-        }
-      ]
+      contents: contents
     }
   end
 

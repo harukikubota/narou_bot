@@ -33,7 +33,7 @@ defmodule NarouBot.Repo.Narou do
   デフォルト引数：ユーザIDを条件に小説を複数件検索する。
   """
   @spec find_by_userid(integer(), list(atom)) :: term
-  def find_by_userid(userid, cols \\ [:n, :t, :ga, :gl]) do
+  def find_by_userid(userid, cols \\ [:n, :t, :ga, :gl, :nt, :e]) do
     from(:novel, maximum_fetch_mode: true, select: List.wrap(cols), where: [userid: userid], order: :ncodedesc)
     |> _exec!
   end
@@ -45,5 +45,5 @@ defmodule NarouBot.Repo.Narou do
     end
   end
 
-  defp _exec!(map), do: Narou.run!(map)
+  defp _exec!(map), do: Narou.run!(map) |> Narou.format
 end
