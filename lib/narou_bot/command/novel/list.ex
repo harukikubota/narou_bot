@@ -3,7 +3,7 @@ defmodule NarouBot.Command.Novel.List do
   alias NarouBot.Repo.Novels
 
   def call(param) do
-    user = Helper.current_user(param.user_id)
+    user = current_user(param)
     type = param.data.type
     novels = Novels.novel_detail(:all, type, user.id)
 

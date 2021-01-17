@@ -5,17 +5,15 @@ defmodule NarouBot.Entity.UserCheckNovel do
 
   @primary_key false
   schema "users_check_novels" do
-    belongs_to :user, User
+    belongs_to :user,  User
     belongs_to :novel, Novel
-    field :do_notify, :boolean
-    field :turn_off_notification_at, :utc_datetime
-    field :restart_episode_id, :integer
-    field :type, :string
 
+    field      :type,                     :string
+    field      :do_notify,                :boolean
+    field      :restart_episode_id,       :integer
+    field      :turn_off_notification_at, :utc_datetime
     timestamps()
   end
-
-  @types ~w/update_notify read_later/
 
   def ch_update_notify(struct, params) do
     struct

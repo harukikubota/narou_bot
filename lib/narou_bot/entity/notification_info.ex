@@ -40,7 +40,6 @@ defmodule NarouBot.Entity.NotificationInfo do
     field      :status,        NotificationStatus, default: @default_status
     field      :type,          NotificationType
     field      :error_reason,  :string
-
     timestamps()
   end
 

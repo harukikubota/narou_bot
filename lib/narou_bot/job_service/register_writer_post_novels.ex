@@ -4,6 +4,7 @@ defmodule NarouBot.JobService.RegisterWriterPostNovels do
     Novels,
     Writers
   }
+  alias NarouBot.Entity.Novel
   require Logger
 
   def exec(writer_id) do
@@ -18,7 +19,7 @@ defmodule NarouBot.JobService.RegisterWriterPostNovels do
     fetch_writer_novels(writer.remote_id)
     |> Enum.reject(&(&1.ncode in (Map.get(writer, :novels)|> Enum.map(fn n -> n.ncode end))))
     |> Enum.map(&format!/1)
-    |> Enum.map(&(Map.merge(&1, %{writer_id: writer.id})))
+    |> Enum.map(&Map.merge(&1, %{writer_id: writer.id}))
     |> Enum.map(&create/1)
   end
 
@@ -33,13 +34,17 @@ defmodule NarouBot.JobService.RegisterWriterPostNovels do
   def format!(%{general_all_no: episode_id,
                 general_lastup: remote_created_at,
                 ncode:          ncode,
-                title:          title
+                title:          title,
+                noveltype:      novel_type,
+                end:            finished
               }) do
     %{
-      episode_id: episode_id,
+      episode_id:        episode_id,
       remote_created_at: remote_created_at,
-      ncode: ncode,
-      title: title
+      ncode:             ncode,
+      title:             title,
+      is_short_story:    Novel.conv_is_short_story(novel_type),
+      finished:          Novel.conv_finished(finished)
     }
   end
 

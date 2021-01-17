@@ -4,7 +4,7 @@ defmodule NarouBot.Command.Writer.Delete do
   alias NarouBot.Command.Writer.Helper.UserCallableState
 
   def call(param) do
-    user = Helper.current_user(param.user_id)
+    user = current_user(param)
     writer = Writers.find(param.data.writer_id)
 
     type = case UserCallableState.judge(:delete, %{user_id: user.id, writer_id: writer.id}) do

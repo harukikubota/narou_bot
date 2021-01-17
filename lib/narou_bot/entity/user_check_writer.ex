@@ -5,11 +5,11 @@ defmodule NarouBot.Entity.UserCheckWriter do
 
   @primary_key false
   schema "users_check_writers" do
-    belongs_to :user, User
+    belongs_to :user,   User
     belongs_to :writer, Writer
-    field :do_notify, :boolean
-    field :turn_off_notification_at, :utc_datetime
 
+    field :do_notify,                :boolean
+    field :turn_off_notification_at, :utc_datetime
     timestamps()
   end
 

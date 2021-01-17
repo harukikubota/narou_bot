@@ -8,7 +8,7 @@ defmodule NarouBot.Command.Novel.SwitchNotification do
   require Logger
 
   def call(param) do
-    user_id  = Helper.current_user(param.user_id).id
+    user_id = current_user(param).id
     novel = Novels.novel_detail(:one, user_id, param.data.novel_id)
 
     user_unread_count = NotificationFacts.user_unread_episode_count(user_id, novel.id)

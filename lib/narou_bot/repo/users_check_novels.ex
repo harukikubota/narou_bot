@@ -1,24 +1,41 @@
 defmodule NarouBot.Repo.UsersCheckNovels do
-  alias NarouBot.Repo
+  use NarouBot.Repo
+
   alias NarouBot.Repo.Users
   alias NarouBot.Entity.{UserCheckNovel, Novel}
-  import Ecto.Query
 
   def registered?(user_id, novel_id) do
-    from(UserCheckNovel, where: [user_id: ^user_id, novel_id: ^novel_id]) |> Repo.exists?
+    from(
+      UserCheckNovel,
+      where: [
+        user_id: ^user_id,
+        novel_id: ^novel_id
+      ]
+    )
+    |> Repo.exists?
   end
 
   def registered?(user_id, novel_id, type) do
     type = to_string(type)
-    from(UserCheckNovel, where: [user_id: ^user_id, novel_id: ^novel_id, type: ^type]) |> Repo.exists?
+
+    from(
+      UserCheckNovel,
+      where: [
+        user_id: ^user_id,
+        novel_id: ^novel_id,
+        type: ^type]
+    )
+    |> Repo.exists?
   end
 
   def user_register_count(type, user_id) do
-    Repo.one(
-      from uc in UserCheckNovel,
-        where: uc.user_id == ^user_id and uc.type == ^type,
-        select: count()
+    from(
+      uc in UserCheckNovel,
+      where: uc.user_id == ^user_id
+        and uc.type == ^type,
+      select: count()
     )
+    |> Repo.one()
   end
 
   def link_to(user_id, novel_id) do
@@ -32,12 +49,23 @@ defmodule NarouBot.Repo.UsersCheckNovels do
   end
 
   def unlink_to(user_id, novel_id) do
-    from(UserCheckNovel, where: [user_id: ^user_id, novel_id: ^novel_id]) |> Repo.delete_all
+    from(
+      UserCheckNovel,
+      where: [
+        user_id: ^user_id,
+        novel_id: ^novel_id]
+    )
+    |> Repo.delete_all
   end
 
   def unlink_all(novel_id) do
     user_ids = Users.notification_target_users(:delete_novel, novel_id: novel_id)
-    from(uc in UserCheckNovel, where: uc.user_id in ^user_ids and uc.novel_id == ^novel_id)
+
+    from(
+      uc in UserCheckNovel,
+      where: uc.user_id in ^user_ids
+        and uc.novel_id == ^novel_id
+    )
     |> Repo.delete_all
   end
 
@@ -47,7 +75,8 @@ defmodule NarouBot.Repo.UsersCheckNovels do
       where: uc.novel_id in subquery(
         from(
           uc in UserCheckNovel,
-          join: n in Novel, on: n.id == uc.novel_id,
+          join: n in Novel,
+            on: n.id == uc.novel_id,
           where: n.writer_id == ^writer_id,
           select: [:novel_id]
         )
@@ -58,14 +87,31 @@ defmodule NarouBot.Repo.UsersCheckNovels do
 
   def find(user_id, novel_id, type) do
     type = to_string(type)
-    from(UserCheckNovel, where: [user_id: ^user_id, novel_id: ^novel_id, type: ^type]) |> first() |> Repo.one()
+
+    from(
+      UserCheckNovel,
+      where: [
+        user_id: ^user_id,
+        novel_id: ^novel_id,
+        type: ^type]
+    )
+    |> first()
+    |> Repo.one()
   end
 
   def update_episode_id(user_id, novel_id, restart_episode_id) do
-    from(UserCheckNovel,
-      where:  [user_id: ^user_id, novel_id: ^novel_id, type: "read_later"],
-      update: [set: [restart_episode_id: ^restart_episode_id]]
-    ) |> Repo.update_all([])
+    from(
+      UserCheckNovel,
+      where: [
+        user_id: ^user_id,
+        novel_id: ^novel_id,
+        type: "read_later"
+      ],
+      update: [
+        set: [restart_episode_id: ^restart_episode_id]
+      ]
+    )
+    |> Repo.update_all([])
   end
 
   def switch_notification(user_id, novel_id) do
@@ -73,10 +119,14 @@ defmodule NarouBot.Repo.UsersCheckNovels do
 
     if target do
       set = [do_notify: !target.do_notify, turn_off_notification_at: DateTime.utc_now]
-      from(n in UserCheckNovel,
-        where: n.user_id == ^user_id and n.novel_id == ^novel_id
+
+      from(
+        n in UserCheckNovel,
+        where: n.user_id == ^user_id
+          and n.novel_id == ^novel_id
       )
       |> Repo.update_all(set: set)
+
       {:ok}
     else
       {:error}

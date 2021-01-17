@@ -9,6 +9,7 @@ defmodule NarouBot.JobService.ApplyRemoteData do
     UsersCheckWriters,
     NotificationFacts
   }
+
   require Logger
 
   def start(arg) do
@@ -45,11 +46,13 @@ defmodule NarouBot.JobService.ApplyRemoteData do
     %{
       notification_target_user_ids: Users.notification_target_users(:new_post_novel, writer_id: writer.id),
       novel_attr: %{
-        ncode: remote.ncode,
-        title: remote.title,
-        writer_id: writer.id,
+        ncode:             remote.ncode,
+        title:             remote.title,
+        writer_id:         writer.id,
         remote_created_at: remote.remote_created_at,
-        episode_id: 1
+        episode_id:        1,
+        finished:          remote.finished,
+        is_short_story:    remote.is_short_story
       }
     }
   end
@@ -58,13 +61,17 @@ defmodule NarouBot.JobService.ApplyRemoteData do
     novel_id = local.id
     episode_ids_to_delete = Range.new(remote.episode_id + 1, local.last_episode.episode_id)
     notification_target_user_ids =
-      Users.notification_target_users(:delete_novel_episode, novel_id: novel_id, episode_id: hd(Enum.to_list(episode_ids_to_delete)))
+      Users.notification_target_users(
+        :delete_novel_episode,
+        novel_id:   novel_id,
+        episode_id: hd(Enum.to_list(episode_ids_to_delete))
+      )
 
     %{
       notification_target_user_ids: notification_target_user_ids,
-      episode_ids_to_delete: episode_ids_to_delete,
-      novel_id: novel_id,
-      remote_created_at: remote.remote_created_at
+      episode_ids_to_delete:        episode_ids_to_delete,
+      novel_id:                     novel_id,
+      remote_created_at:            remote.remote_created_at
     }
   end
 
@@ -72,7 +79,7 @@ defmodule NarouBot.JobService.ApplyRemoteData do
     novel_id = local.id
     %{
       notification_target_user_ids: Users.notification_target_users(:delete_novel, novel_id: novel_id),
-      novel_id: novel_id
+      novel_id:                     novel_id
     }
   end
 
@@ -80,8 +87,13 @@ defmodule NarouBot.JobService.ApplyRemoteData do
     writer_id = local.id
     %{
       notification_target_user_ids: Users.notification_target_users(:delete_writer, writer_id: writer_id),
-      writer_id: writer_id
+      writer_id:                    writer_id
     }
+  end
+
+  # 通知対象は小説削除と同一にする
+  def setup(:novel_end, local, _) do
+    setup(:delete_novel, local, nil)
   end
 
   def logging_data(data) do
@@ -92,7 +104,7 @@ defmodule NarouBot.JobService.ApplyRemoteData do
 
   def update_local_data(:novel_new_episode, data) do
     data.episode_ids_to_create
-    |> Enum.map(&(NovelEpisodes.create(%{novel_id: data.novel_id, episode_id: &1, remote_created_at: data.remote_created_at})))
+    |> Enum.map(&NovelEpisodes.create(%{novel_id: data.novel_id, episode_id: &1, remote_created_at: data.remote_created_at}))
   end
 
   def update_local_data(:new_post_novel, %{novel_attr: attr}), do: Novels.create_with_assoc_episode(attr)
@@ -120,34 +132,51 @@ defmodule NarouBot.JobService.ApplyRemoteData do
     UsersCheckNovels.unlink_all_by_writer_id(writer_id)
   end
 
+  def update_local_data(:novel_end, data) do
+    Novels.finish_episode(data.novel_id)
+  end
+
 
   def create_notification_data(created_novel_episodes, :novel_new_episode, data) do
     Enum.each(created_novel_episodes, fn %{id: novel_episode_id} ->
       data.notification_target_user_ids
-      |> Enum.each(&(NotificationFacts.create(%{type: :novel_new_episode, user_id: &1, novel_episode_id: novel_episode_id})))
+      |> Enum.each(&NotificationFacts.create(%{type: :novel_new_episode, user_id: &1, novel_episode_id: novel_episode_id}))
     end)
   end
 
   def create_notification_data(%{id: novel_id}, :new_post_novel, data) do
     data.notification_target_user_ids
-    |> Enum.each(&(NotificationFacts.create(%{type: :new_post_novel, user_id: &1, novel_id: novel_id})))
+    |> Enum.each(&NotificationFacts.create(%{type: :new_post_novel, user_id: &1, novel_id: novel_id}))
   end
 
   def create_notification_data(deleted_novel_episodes, :delete_novel_episode, data) do
     Enum.each(deleted_novel_episodes, fn %{id: novel_episode_id} ->
       data.notification_target_user_ids
-      |> Enum.each(&(NotificationFacts.create(%{type: :delete_novel_episode, user_id: &1, novel_episode_id: novel_episode_id})))
+      |> Enum.each(&NotificationFacts.create(%{type: :delete_novel_episode, user_id: &1, novel_episode_id: novel_episode_id}))
     end)
   end
 
   def create_notification_data(_, :delete_novel, data) do
     data.notification_target_user_ids
-    |> Enum.each(&(NotificationFacts.create(%{type: :delete_novel, user_id: &1, novel_id: data.novel_id})))
+    |> Enum.each(&NotificationFacts.create(%{type: :delete_novel, user_id: &1, novel_id: data.novel_id}))
   end
 
   def create_notification_data(_, :delete_writer, data) do
     data.notification_target_user_ids
-    |> Enum.each(&(NotificationFacts.create(%{type: :delete_writer, user_id: &1, writer_id: data.writer_id})))
+    |> Enum.each(&NotificationFacts.create(%{type: :delete_writer, user_id: &1, writer_id: data.writer_id}))
+  end
+
+  def create_notification_data(_, :novel_end, _), do: :ok # pass.
+
+  defp make_brank_record_if_local_episodes_not_exist(data) do
+    if Enum.empty?(NovelEpisodes.leatest_update_history(data.novel_id)) do
+      %{
+        novel_id: data.novel_id,
+        episode_id: data.episode_ids_to_delete |> Enum.to_list |> hd |> Kernel.-(1),
+        remote_created_at: data.remote_created_at
+      }
+      |> NovelEpisodes.create()
+    end
   end
 
   defp make_brank_record_if_local_episodes_not_exist(data) do

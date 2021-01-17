@@ -1,6 +1,6 @@
 defmodule NarouBot.Repo.NotificationFacts do
-  import Ecto.Query
-  alias NarouBot.Repo
+  use NarouBot.Repo
+
   alias NarouBot.Entity.{
     NovelEpisode,
     UserCheckNovel,
@@ -10,31 +10,42 @@ defmodule NarouBot.Repo.NotificationFacts do
   def all() do
     from(
       ni in NotificationInfo,
-      left_join: ne   in assoc(ni, :novel_episode), on: ni.novel_episode_id == ne.id,
-      left_join: ne_n in assoc(ne, :novel),         on: ne.novel_id         == ne_n.id,
-      left_join: n    in assoc(ni, :novel),         on: ni.novel_id         == n.id,
-      left_join: n_w  in assoc(n,  :writer),        on: n.writer_id         == n_w.id,
-      left_join: w    in assoc(ni, :writer),        on: ni.writer_id        == w.id,
+      left_join: ne   in assoc(ni, :novel_episode),
+        on: ni.novel_episode_id == ne.id,
+      left_join: ne_n in assoc(ne, :novel),
+        on: ne.novel_id == ne_n.id,
+      left_join: n    in assoc(ni, :novel),
+        on: ni.novel_id == n.id,
+      left_join: n_w  in assoc(n, :writer),
+        on: n.writer_id == n_w.id,
+      left_join: w    in assoc(ni, :writer),
+        on: ni.writer_id == w.id,
       preload: [
-        novel_episode: {ne, novel: ne_n},
-        novel: {n, writer: n_w},
-        writer: w
+        novel:         {n, writer: n_w},
+        writer:        w,
+        novel_episode: {ne, novel: ne_n}
       ]
-    ) |> Repo.all()
+    )
+    |> Repo.all()
   end
 
   def create(params) do
-    {%{type: type}, param} = params |> Map.split([:type])
+    {%{type: type}, param} = Map.split(params, [:type])
+
     NotificationInfo.changeset(type, param)
     |> Repo.insert!
   end
 
   def change_notification_off_novel_update_record_to_unread do
     from(
-      ni in NotificationInfo,
-      join: ne in NovelEpisode, on: ne.id == ni.novel_episode_id,
-      join: ucn in UserCheckNovel, on: ucn.user_id == ni.user_id, on: ucn.novel_id == ne.novel_id,
-      where: ucn.do_notify == false and ni.status == "inserted",
+      ni        in NotificationInfo,
+      join: ne  in NovelEpisode,
+        on: ne.id == ni.novel_episode_id,
+      join: ucn in UserCheckNovel,
+        on: ucn.user_id  == ni.user_id,
+        on: ucn.novel_id == ne.novel_id,
+      where: ucn.do_notify == false
+        and ni.status == "inserted",
       select: [:id]
     )
     |> update_status("user_unread")
@@ -43,29 +54,42 @@ defmodule NarouBot.Repo.NotificationFacts do
   def inserted_records do
     from(
       ni in NotificationInfo,
-      left_join: u    in assoc(ni, :user),          on: ni.user_id          == u.id,
-      left_join: ne   in assoc(ni, :novel_episode), on: ni.novel_episode_id == ne.id,
-      left_join: ne_n in assoc(ne, :novel),         on: ne.novel_id         == ne_n.id,
-      left_join: n    in assoc(ni, :novel),         on: ni.novel_id         == n.id,
-      left_join: n_w  in assoc(n,  :writer),        on: n.writer_id         == n_w.id,
-      left_join: w    in assoc(ni, :writer),        on: ni.writer_id        == w.id,
+      left_join: u    in assoc(ni, :user),
+        on: ni.user_id == u.id,
+      left_join: ne   in assoc(ni, :novel_episode),
+        on: ni.novel_episode_id == ne.id,
+      left_join: ne_n in assoc(ne, :novel),
+        on: ne.novel_id == ne_n.id,
+      left_join: n    in assoc(ni, :novel),
+        on: ni.novel_id == n.id,
+      left_join: n_w  in assoc(n,  :writer),
+        on: n.writer_id == n_w.id,
+      left_join: w    in assoc(ni, :writer),
+        on: ni.writer_id == w.id,
       where: ni.status == "inserted",
-      order_by: [ni.type, ne_n.ncode, ne.episode_id],
+      order_by: [
+        ni.type,
+        ne_n.ncode,
+        ne.episode_id
+      ],
       preload: [
         novel_episode: {ne, novel: ne_n},
         novel:         {n, writer: n_w},
         writer:        w,
         user:          u
       ]
-    ) |> Repo.all()
+    )
+    |> Repo.all()
   end
 
   def user_unread_episodes(user_id, novel_id) do
     from(
       ni in NotificationInfo,
       left_join: ne in assoc(ni, :novel_episode),
-      left_join: n in assoc(ne, :novel),
-      where: ni.status == "user_unread" and n.id == ^novel_id and ni.user_id == ^user_id,
+      left_join: n  in assoc(ne, :novel),
+      where: ni.status == "user_unread"
+        and n.id == ^novel_id
+        and ni.user_id == ^user_id,
       order_by: [ne.episode_id],
       preload: [novel_episode: {ne, novel: n}]
     )
@@ -78,21 +102,26 @@ defmodule NarouBot.Repo.NotificationFacts do
 
     # FIXME Novels.novel_detailで直接selectできるようにしたい
     # 現状は通知オフのレコード分だけクエリが発行される。(多くても50レコードなのでパフォーマンスは気にしなくていいかも。。。)
-    query = from(
+    from(
       ni in NotificationInfo,
       left_join: ne in assoc(ni, :novel_episode),
-      left_join: n in assoc(ne, :novel),
-      where: ni.status == "user_unread" and n.id == ^novel_id and ni.user_id == ^user_id,
+      left_join: n  in assoc(ne, :novel),
+      where: ni.status == "user_unread"
+        and n.id == ^novel_id
+        and ni.user_id == ^user_id,
       group_by: ne.novel_id,
       limit: 1,
       select: count(ne.novel_id)
     )
-
-    Repo.one(query) || 0
+    |> Repo.one()
+    |> Kernel.||(0)
   end
 
   def update_status(update_target_fetch_query, status) do
-    from(ni in NotificationInfo, where: ni.id in subquery(update_target_fetch_query))
+    from(
+      ni in NotificationInfo,
+      where: ni.id in subquery(update_target_fetch_query)
+    )
     |> Repo.update_all(set: [status: status])
   end
 
@@ -103,18 +132,24 @@ defmodule NarouBot.Repo.NotificationFacts do
   end
 
   def change_status_all(records, status) do
-    ids = records |> Enum.map(&(&1.id))
+    ids = Enum.map(records, &(&1.id))
 
     from(ni in NotificationInfo, where: ni.id in ^ids, select: [:id])
     |> update_status(to_string(status))
   end
 
   def change_status_all(records, :error, reason) do
-    ids = records |> Enum.map(&(&1.id)) |> Enum.sort
+    ids = Enum.map(records, &(&1.id))
 
-    from(ni in NotificationInfo, where: ni.id in subquery(
-      from(ni in NotificationInfo, where: ni.id in ^ids, select: [:id])
-    ))
+    from(
+      ni in NotificationInfo,
+      where: ni.id in subquery(
+        from(
+          ni in NotificationInfo,
+          where: ni.id in ^ids,
+          select: [:id])
+      )
+    )
     |> Repo.update_all(set: [status: "error", error_reason: inspect(reason)])
   end
 end

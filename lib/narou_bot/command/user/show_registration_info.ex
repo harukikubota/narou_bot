@@ -6,7 +6,7 @@ defmodule NarouBot.Command.User.ShowRegistrationInfo do
   }
 
   def call(param) do
-    user = Helper.current_user(param.user_id)
+    user = current_user(param)
 
     export novel_register_max:    user.novel_register_max,
       writer_register_max:        user.writer_register_max,

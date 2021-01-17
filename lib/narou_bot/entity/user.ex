@@ -10,14 +10,14 @@ defmodule NarouBot.Entity.User do
   }
 
   schema "users" do
-    field :line_id, :string, null: false
-    field :enabled, :boolean, default: true
+    has_many     :notification_facts, NotificationInfo
+    many_to_many :novels,             Novel,  join_through: UserCheckNovel
+    many_to_many :writers,            Writer, join_through: UserCheckWriter
+
+    field :line_id,             :string,  null: false
+    field :enabled,             :boolean, default: true
     field :novel_register_max,  :integer, default: 50
     field :writer_register_max, :integer, default: 50
-
-    has_many     :notification_facts, NotificationInfo
-    many_to_many :novels, Novel, join_through: UserCheckNovel
-    many_to_many :writers, Writer, join_through: UserCheckWriter
   end
 
   def changeset(user, attr \\ %{}) do

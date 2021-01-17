@@ -3,7 +3,7 @@ defmodule NarouBot.Command.Writer.Show do
   alias NarouBot.Repo.Writers
 
   def call(param) do
-    user = Helper.current_user(param.user_id)
+    user = current_user(param)
     writer = Writers.writer_detail(user.id, param.data.writer_id)
 
     type = if writer do

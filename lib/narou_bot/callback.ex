@@ -29,7 +29,7 @@ defmodule NarouBot.Callback do
 
     action
     |> String.split("/")
-    |> Enum.map(&(String.to_atom(&1)))
+    |> Enum.map(&String.to_atom/1)
     |> invoke(Map.merge(info, %{data: data}))
   end
 
@@ -41,9 +41,9 @@ defmodule NarouBot.Callback do
   end
 
   defp to_mod(mod_symbols) do
-    sub = List.wrap(mod_symbols)
-      |> Enum.map(&(Macro.camelize(to_string(&1))))
-      |> Enum.join(".")
-    Module.concat(NarouBot.Command, sub)
+    List.wrap(mod_symbols)
+    |> Enum.map(&Macro.camelize(to_string(&1)))
+    |> Enum.join(".")
+    |> (&Module.concat(NarouBot.Command, &1)).()
   end
 end

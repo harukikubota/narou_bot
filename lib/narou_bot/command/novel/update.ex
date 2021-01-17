@@ -7,7 +7,7 @@ defmodule NarouBot.Command.Novel.Update do
   alias NarouBot.Command.Novel.Helper.UserCallableState
 
   def call(param) do
-    user = Helper.current_user(param.user_id)
+    user = current_user(param)
     novel = Novels.find(param.data.novel_id)
     restart_episode_id = param.data.episode_id
 

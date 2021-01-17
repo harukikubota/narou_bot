@@ -1,6 +1,6 @@
 defmodule NarouBot.Repo.Novels do
-  import Ecto.Query
-  alias NarouBot.Repo
+  use NarouBot.Repo
+
   alias Repo.{
     Util,
     NovelEpisodes,
@@ -10,9 +10,7 @@ defmodule NarouBot.Repo.Novels do
   alias NarouBot.Entity.{
     Novel,
     Writer,
-    UserCheckNovel,
-    NotificationInfo,
-    Helper
+    UserCheckNovel
   }
   require Logger
 
@@ -48,28 +46,35 @@ defmodule NarouBot.Repo.Novels do
   end
 
   defp novel_detail_query(:registerd, user_id) do
-    from [n, w] in novel_detail_query(:no_register),
+    from(
+      [n, w] in novel_detail_query(:no_register),
       join: ucn in UserCheckNovel,
-      as: :user_check,
-      on: ucn.novel_id == n.id,
+        on: ucn.novel_id == n.id,
+        as: :user_check,
       where: ucn.user_id == ^user_id,
       preload: [check_user: ucn]
+    )
   end
 
   defp novel_detail_query(:no_register) do
-    from n in Novel,
-      as: :novels,
-      join: w in assoc(n, :writer), on: w.id == n.writer_id,
-      preload: [writer: w, last_episode: ^NovelEpisodes.novel_last_episodes_query]
+    from(
+      n in Novel,
+        as: :novels,
+      join: w in assoc(n, :writer),
+        on: w.id == n.writer_id,
+      preload: [
+        writer: w,
+        last_episode: ^NovelEpisodes.novel_last_episodes_query
+      ]
+    )
   end
 
   def add_col_unread_count(cols, :all, "update_notify") do
-    Enum.map(cols, &(add_col_unread_count(&1, :one, "update_notify")))
+    Enum.map(cols, &add_col_unread_count(&1, :one, "update_notify"))
   end
 
   def add_col_unread_count(col, :one, "update_notify") do
     unless col.check_user.do_notify do
-
       Map.merge(col, %{unread_count: NotificationFacts.user_unread_episode_count(col.check_user.user_id, col.id)})
     else
       col
@@ -81,14 +86,22 @@ defmodule NarouBot.Repo.Novels do
   def find_by_ncode(ncode) do
     from(
       n in Novel,
-      join: w  in Writer , on: n.writer_id == w.id,
+      join: w  in Writer ,
+        on: n.writer_id == w.id,
       join: ne in subquery(NovelEpisodes.novel_last_episodes_query),
-      on: ne.novel_id == n.id,
-      where: n.ncode == ^ncode and n.remote_deleted == false,
+        on: ne.novel_id == n.id,
+      where: n.ncode == ^ncode
+        and n.remote_deleted == false,
       select: %{
-        id: n.id, ncode: n.ncode, title: n.title,
-        writer_name: w.name, writer_id: n.writer_id,
-        episode_id: ne.episode_id, remote_created_at: ne.remote_created_at
+        id:                n.id,
+        ncode:             n.ncode,
+        title:             n.title,
+        writer_name:       w.name,
+        writer_id:         n.writer_id,
+        finished:          n.finished,
+        is_short_story:    n.is_short_story,
+        episode_id:        ne.episode_id,
+        remote_created_at: ne.remote_created_at,
       }
     )
     |> first()
@@ -97,29 +110,60 @@ defmodule NarouBot.Repo.Novels do
 
   def find_or_create_by(ncode) do
     record = find_by_ncode(ncode)
-    case is_nil(record) do
-      false -> {:ok, record}
-      true ->
-        case Repo.Narou.find_by_ncode(ncode, [:ga, :u, :t, :gl]) do
-          {:ok, %{general_all_no: episode_id, title: title, userid: remote_writer_id, general_lastup: general_lastup}} ->
-            {:ok, writer} = Repo.Writers.find_or_create_by(remote_writer_id)
 
-            novel = create_with_assoc_episode(%{ncode: ncode, title: title, writer_id: writer.id, remote_created_at: general_lastup, episode_id: episode_id})
+    if is_nil(record) do
+      case Repo.Narou.find_by_ncode(ncode, [:ga, :u, :t, :gl, :nt, :e]) do
+        {:ok, %{
+          general_all_no: episode_id,
+          title:          title,
+          userid:         remote_writer_id,
+          general_lastup: general_lastup,
+          noveltype:      novel_type,
+          end:            finished
+        }} ->
+          {:ok, writer} = Repo.Writers.find_or_create_by(remote_writer_id)
 
-            {:ok, find_by_ncode(novel.ncode)}
+          is_short_story = Novel.conv_is_short_story(novel_type)
+          finished       = Novel.conv_finished(finished)
 
-          {:no_data} -> {:no_data}
-          {_, _}     -> {:error}
-        end
+          novel =
+            create_with_assoc_episode(
+              %{
+                ncode:             ncode,
+                title:             title,
+                writer_id:         writer.id,
+                episode_id:        episode_id,
+                remote_created_at: general_lastup,
+                finished:          finished,
+                is_short_story:    is_short_story
+              }
+            )
+
+          {:ok, find_by_ncode(novel.ncode)}
+
+        any -> any
+      end
+    else
+      {:ok, record}
     end
   end
 
   def create(param) do
-    %Novel{} |> Map.merge(param) |> Repo.insert!
+    Map.merge(%Novel{}, param) |> Repo.insert!
   end
 
-  def create_with_assoc_episode(%{ncode: ncode, title: title, writer_id: writer_id, episode_id: episode_id, remote_created_at: remote_created_at}) do
-    novel = create(%{ncode: ncode, title: title, writer_id: writer_id})
+  def create_with_assoc_episode(
+    %{
+      ncode:             ncode,
+      title:             title,
+      writer_id:         writer_id,
+      episode_id:        episode_id,
+      remote_created_at: remote_created_at,
+      finished:          finished,
+      is_short_story:    is_short_story
+    }
+  ) do
+    novel = create(%{ncode: ncode, title: title, writer_id: writer_id, finished: finished, is_short_story: is_short_story})
 
     %{novel_id: novel.id, episode_id: episode_id, remote_created_at: remote_created_at}
     |> NovelEpisodes.create()
@@ -131,18 +175,14 @@ defmodule NarouBot.Repo.Novels do
     find(id) |> Util.exec_delete()
   end
 
-  def records_for_fetch() do
+  def finish_episode(id) do
     from(
-      n in Novel,
-      join: ne in subquery(NovelEpisodes.novel_last_episodes_query),
-      on: ne.novel_id == n.id,
-      where: n.remote_deleted == false,
-      order_by: [desc: n.ncode],
-      select: %{
-        id: n.id, ncode: n.ncode,
-        episode_id: ne.episode_id
-      }
+      Novel,
+      where: [id: ^id],
+      update: [
+        set: [finished: true]
+      ]
     )
-    |> Repo.all
+    |> Repo.update_all([])
   end
 end

@@ -47,7 +47,7 @@ defmodule NarouBot.Template.JobService.Notificate_data do
     %F{
       altText: "更新通知",
       contents: %F.Carousel{
-        contents: Enum.map(notification_facts, &(template_for(&1.type, &1)))
+        contents: Enum.map(notification_facts, &template_for(&1.type, &1))
       }
     }
   end
@@ -127,27 +127,7 @@ defmodule NarouBot.Template.JobService.Notificate_data do
             label: truncate_str(novel.title)
           }
         }
-      ] ++ Enum.map(episodes, &(episode_link(novel, &1)))
-    }
-  end
-
-  defp episode_link(novel, episode) do
-    %F.Box{
-      layout: :horizontal,
-      contents: [
-        %F.Text{
-          text: "#{episode.episode_id}話",
-          action: %M.Action.URI{
-            uri: add_opt_open_url_link(NHelper.make_novel_url(novel.ncode, episode.episode_id))
-          },
-          color: "#325b85",
-          flex: 3
-        },
-        %F.Text{
-          text: format_date_yymmddhhmi(episode.remote_created_at),
-          flex: 5
-        }
-      ]
+      ] ++ Enum.map(episodes, &episode_link(novel, &1))
     }
   end
 
@@ -233,9 +213,8 @@ defmodule NarouBot.Template.JobService.Notificate_data do
   end
 
   def body(:new_post_novel, %{writer: writer, novel: novel}) do
-    %F.Box{
-      layout: :vertical,
-      contents: [
+    contents =
+      [
         %F.Button{
           action: %M.Action.Postback{
             data: postback_data(%{action: "/writer/show", writer_id: writer.id}),
@@ -256,31 +235,80 @@ defmodule NarouBot.Template.JobService.Notificate_data do
           }
         }
       ]
+
+    contents =
+      if novel.is_short_story do
+        contents ++
+          [
+            %F.Box{
+              layout: :vertical,
+              contents: [
+                %F.Text{
+                  text: "・短編",
+                  align: :center
+                }
+              ]
+            }
+          ]
+      else
+        contents
+      end
+
+    %F.Box{
+      layout: :vertical,
+      contents: contents
     }
   end
 
   def footer(:new_post_novel, %{novel: novel}) do
+    contents =
+      [%F.Button{
+        action: %M.Action.Postback{
+          data: postback_data(%{action: "/novel/add", novel_id: novel.id, episode_id: 1, type: :read_later}),
+          label: "後で読むに追加する"
+        },
+        height: :sm,
+        style: :link
+      }]
+
+    contents =
+      unless novel.finished do
+        contents ++
+          [%F.Button{
+            action: %M.Action.Postback{
+              data: postback_data(%{action: "/novel/add", novel_id: novel.id, type: :update_notify}),
+              label: "更新通知に追加する"
+            },
+            height: :sm,
+            style: :link
+          }]
+      else
+        contents
+      end
+
     %F.Box{
       layout: :vertical,
+      contents: contents
+    }
+  end
+
+  defp episode_link(novel, episode) do
+    %F.Box{
+      layout: :horizontal,
       contents: [
-        %F.Button{
-          action: %M.Action.Postback{
-            data: postback_data(%{action: "/novel/add", novel_id: novel.id, type: :update_notify}),
-            label: "更新通知に追加する"
+        %F.Text{
+          text: "#{episode.episode_id}話",
+          action: %M.Action.URI{
+            uri: add_opt_open_url_link(NHelper.make_novel_url(novel.ncode, episode.episode_id))
           },
-          height: :sm,
-          style: :link
+          color: "#325b85",
+          flex: 3
         },
-        %F.Button{
-          action: %M.Action.Postback{
-            data: postback_data(%{action: "/novel/add", novel_id: novel.id, episode_id: 1, type: :read_later}),
-            label: "後で読むに追加する"
-          },
-          height: :sm,
-          style: :link
+        %F.Text{
+          text: format_date_yymmddhhmi(episode.remote_created_at),
+          flex: 5
         }
       ]
     }
   end
-
 end

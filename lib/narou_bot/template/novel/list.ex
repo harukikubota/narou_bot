@@ -10,14 +10,14 @@ defmodule NarouBot.Template.Novel.List do
   def render(:ok, dao) do
     dao.novels
     |> Enum.chunk_every(10)
-    |> Enum.map(&(col_template(&1, dao.type)))
+    |> Enum.map(&col_template(&1, dao.type))
   end
 
   def col_template(novels, type) do
     %F{
       altText: "登録小説一覧",
       contents: %F.Carousel{
-        contents: Enum.map(novels, &(make_novel_info(&1, type)))
+        contents: Enum.map(novels, &make_novel_info(&1, type))
       }
     }
   end
