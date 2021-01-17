@@ -4,14 +4,15 @@ defmodule NarouBot.Mixfile do
   def project do
     [
       app: :narou_bot,
-      version: "0.0.1",
+      version: "0.1.2",
       elixir: "~> 1.4",
       elixirc_paths: elixirc_paths(Mix.env),
       compilers: [:phoenix, :gettext] ++ Mix.compilers,
       start_permanent: Mix.env == :prod,
       preferred_cli_env: [espec: :test],
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      xref: xref()
     ]
   end
 
@@ -21,7 +22,7 @@ defmodule NarouBot.Mixfile do
   def application do
     [
       mod: {NarouBot.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :vex]
     ]
   end
 
@@ -34,7 +35,7 @@ defmodule NarouBot.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:narou, git: "https://github.com/harukikubota/narou.git", tag: "0.2.5", override: true},
+      {:narou, git: "https://github.com/harukikubota/narou.git", tag: "0.2.7"},
       {:phoenix, github: "phoenixframework/phoenix", branch: "master", override: true},
       {:phoenix_pubsub, "~> 2.0"},
       {:phoenix_ecto, ">= 4.1.0"},
@@ -52,6 +53,7 @@ defmodule NarouBot.Mixfile do
       {:poison, "~> 4.0", override: true},
       {:quantum, "~> 3.0"},
       {:tzdata, "~> 1.0.3"},
+      {:timex, "~> 3.6"},
       {:line_bot, path: "ext_lib/line_bot"},
     ]
   end
@@ -67,6 +69,13 @@ defmodule NarouBot.Mixfile do
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate", "test"]
+    ]
+  end
+
+  defp xref do
+    [
+      HTTPoison,
+      Poison
     ]
   end
 end
