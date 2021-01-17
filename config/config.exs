@@ -42,6 +42,10 @@ config :narou_bot, NarouBot.Scheduler,
     {
       "*/5 * * * *",
       fn -> NarouBot.JobService.NotificationToUser.exec end
+    },
+    {
+      "@daily",
+      fn -> NarouBot.JobService.DeleteUnnecessaryRecords.exec end
     }
   ]
 
