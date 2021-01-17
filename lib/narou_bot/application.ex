@@ -15,7 +15,7 @@ defmodule NarouBot.Application do
       # Start your own worker by calling: NarouBot.Worker.start_link(arg1, arg2, arg3)
       # worker(NarouBot.Worker, [arg1, arg2, arg3]),
     ]
-    |> Kernel.++(if Mix.env == :prod, do: supervisor(NarouBot.Scheduler, []), else: [])
+    |> Kernel.++(if Mix.env == :prod, do: List.wrap(supervisor(NarouBot.Scheduler, [])), else: [])
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
