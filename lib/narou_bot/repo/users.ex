@@ -94,9 +94,9 @@ defmodule NarouBot.Repo.Users do
       join: ni in "notification_facts",
         on: u.id == ni.user_id,
       where: ni.status == ^record_status
-      and un.do_notify == true
-      and un.type == "update_notify"
+        and un.do_notify == true
+        and un.type == "update_notify"
+        and ne.episode_id == ^episode_id
       )
     end
-    #and ne.episode_id == ^episode_id
 end
