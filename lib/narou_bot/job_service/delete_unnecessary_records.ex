@@ -64,7 +64,7 @@ defmodule NarouBot.JobService.DeleteUnnecessaryRecords do
       n in Novel,
       join: ne in NovelEpisode,
         on: n.id == ne.novel_id,
-      order_by: [ne.novel_id, ne.episode_id],
+      order_by: [ne.episode_id],
       preload: [episodes: ne]
     )
     |> Repo.all
@@ -72,10 +72,8 @@ defmodule NarouBot.JobService.DeleteUnnecessaryRecords do
     |> Enum.map(&(&1.episodes))
     |> Enum.map(
       fn episodes ->
-        Enum.map(episodes, &(&1.id))
-        |> Enum.with_index
-        |> Enum.reject(fn {_, index} -> index < record_limit end)
-        |> Enum.map(&elem(&1, 0))
+        Enum.slice(episodes, 0..-(record_limit + 1))
+        |> Enum.map(&(&1.id))
       end
     )
     |> Enum.flat_map(&(&1))

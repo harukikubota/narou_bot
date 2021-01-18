@@ -43,10 +43,11 @@ config :narou_bot, NarouBot.Scheduler,
       "*/5 * * * *",
       fn -> NarouBot.JobService.NotificationToUser.exec end
     },
-    {
-      "@daily",
-      fn -> NarouBot.JobService.DeleteUnnecessaryRecords.exec end
-    }
+    # FIXME 修正終わったらコメントアウトはずす
+    #{
+    #  "@daily",
+    #  fn -> NarouBot.JobService.DeleteUnnecessaryRecords.exec end
+    #}
   ]
 
 config :phoenix, :json_library, Jason
