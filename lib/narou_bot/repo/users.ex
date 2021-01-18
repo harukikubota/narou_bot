@@ -40,7 +40,6 @@ defmodule NarouBot.Repo.Users do
       join: un in "users_check_novels",
         on: u.id == un.user_id,
       where: un.novel_id == ^novel_id
-        and un.do_notify == true
         and un.type == "update_notify"
     )
   end
@@ -95,7 +94,9 @@ defmodule NarouBot.Repo.Users do
       join: ni in "notification_facts",
         on: u.id == ni.user_id,
       where: ni.status == ^record_status
-        and ne.episode_id == ^episode_id
-    )
-  end
+      and un.do_notify == true
+      and un.type == "update_notify"
+      )
+    end
+    #and ne.episode_id == ^episode_id
 end
