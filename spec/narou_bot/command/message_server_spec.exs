@@ -1,7 +1,7 @@
 defmodule NarouBot.Command.MessageServerSpec do
   use ESpec
 
-  alias NarouBot.Command.MessageServerC, as: MS
+  alias NarouBot.Command.MessageServer, as: MS
 
   describe "#start_link/2" do
     it do: expect MS.start_link(self(), "token") |> to(be_ok_result())
@@ -35,6 +35,14 @@ defmodule NarouBot.Command.MessageServerSpec do
       let! :push, do: MS.push_message(self(), "hogehoge")
 
       it do: expect MS.get_messages(self()) |> to(eq ["hogehoge"])
+    end
+
+    context "push any messages" do
+      let! :m, do: MS.start_link(self(), "token")
+      let! :push1, do: MS.push_message(self(), "hogehoge1")
+      let! :push2, do: MS.push_message(self(), "hogehoge2")
+
+      it do: expect MS.get_messages(self()) |> to(eq ["hogehoge1", "hogehoge2"])
     end
   end
 

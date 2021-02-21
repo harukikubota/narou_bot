@@ -1,46 +1,55 @@
 defmodule NarouBot.Command.MessageServer do
-  use Agent
+  @behaviour GenServer
 
-  def start_link(target_pid, reply_token) do
-    {:ok, pid} = Agent.start_link(&default_record/0, name: to_key_name(target_pid))
+  defstruct [:target_pid, :token, bindings: %{}, messages: []]
 
-    memo_self_pid(pid, target_pid)
-    set_reply_token(target_pid, reply_token)
-
-    {:ok, pid}
+  defmacrop to_key_name(pid) do
+    quote bind_quoted: [pid: pid] do
+      inspect(pid)
+      |> String.slice(7..-4)
+      |> (&(:"p#{&1}")).()
+    end
   end
 
-  defp default_record, do: %{messages: [], reply_token: nil, dao: %{}, self: nil}
-  defp memo_self_pid(self_pid, target_pid), do: update_property(target_pid, :self, fn _ -> self_pid end)
+  def start_link(pid, reply_token) do
+    opt = [target_pid: pid, token: reply_token]
 
-  def get_messages(pid),    do: get_property(pid, :messages)
-  def get_reply_token(pid), do: get_property(pid, :reply_token)
-  def get_dao(pid),         do: get_property(pid, :dao)
-  defp get_self(pid),       do: get_property(pid, :self)
-
-  defp get_property(pid, key), do: Agent.get(to_key_name(pid), &Map.get(&1, key))
-
-  def push_message(pid, messages) do
-    update_property(pid, :messages, &Kernel.++(&1, List.wrap(messages)))
+    GenServer.start_link(__MODULE__, opt, name: to_key_name(pid))
   end
 
-  def push_val(pid, val_name, val) do
-    update_property(pid, :dao, &Map.merge(&1, %{val_name => val}))
+  def get_reply_token(pid), do: GenServer.call(to_key_name(pid), :token)
+
+  def get_messages(pid),    do: GenServer.call(to_key_name(pid), :messages) |> Enum.reverse
+
+  def get_dao(pid),         do: GenServer.call(to_key_name(pid), :bindings)
+
+  def push_val(pid, var_name, val), do: GenServer.cast(to_key_name(pid), {:push_binding, {var_name, val}})
+
+  def push_message(pid, message), do: GenServer.cast(to_key_name(pid), {:push_message, message})
+
+  def stop(pid),            do: GenServer.stop(to_key_name(pid), :normal)
+
+  @impl true
+  def init(target_pid: target_pid, token: token) do
+    state = %__MODULE__{
+              target_pid: to_key_name(target_pid),
+              token: token
+            }
+
+    {:ok, state}
   end
 
-  defp set_reply_token(pid, reply_token) do
-    update_property(pid, :reply_token, fn _-> reply_token end)
+  @impl true
+  def handle_call(key, _, state) when is_atom(key) do
+    {:reply, Map.fetch!(state, key), state}
   end
 
-  defp update_property(pid, update_target_key, update_fun) do
-    Agent.update(to_key_name(pid), &Map.replace!(&1, update_target_key, update_fun.(Map.get(&1, update_target_key))))
+  @impl true
+  def handle_cast({:push_binding, {var_name, val}}, state = %{bindings: bindings}) do
+    {:noreply, %{state | bindings: Map.merge(bindings, %{var_name => val})}}
   end
 
-  def stop(pid), do: pid |> get_self() |> Agent.stop()
-
-  def to_key_name(pid) do
-    inspect(pid)
-    |> String.slice(7..-4)
-    |> (&(:"p#{&1}")).()
+  def handle_cast({:push_message, message}, state = %{messages: messages}) do
+    {:noreply, %{state | messages: [message | messages]}}
   end
 end
