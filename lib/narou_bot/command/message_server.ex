@@ -50,6 +50,6 @@ defmodule NarouBot.Command.MessageServer do
   end
 
   def handle_cast({:push_message, message}, state = %{messages: messages}) do
-    {:noreply, %{state | messages: [message | messages]}}
+    {:noreply, %{state | messages: [message | messages] |> Enum.flat_map(&(&1))}}
   end
 end
