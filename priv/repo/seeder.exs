@@ -25,7 +25,7 @@ Enum.each(ncodes, fn n ->
   Novels.find_or_create_by(n)
   Process.sleep(4000)
 end)
-IO.gets "If you want to end it,just press any key!"
+Process.sleep(20000)
 
 ucn_seed =[
   %{"id" => "1", "ncode" => "n2267be", "reid" => "", "type" => "update_notify"},
