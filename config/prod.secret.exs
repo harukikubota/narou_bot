@@ -16,5 +16,6 @@ config :narou_bot, NarouBot.Repo,
   adapter: Ecto.Adapters.Postgres,
   username: "postgres",
   password: "postgres",
+  ssl: true,
   database: "narou_bot_prod",
-  pool_size: 15
+  pool_size: String.to_integer(System.get_env("POOL_SIZE"))

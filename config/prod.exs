@@ -15,7 +15,7 @@ use Mix.Config
 # which you typically run after static files are built.
 config :narou_bot, NarouBotWeb.Endpoint,
   load_from_system_env: true,
-  url: [host: "narou-bot.herokuapp.com", port: 80],
+  url: [scheme: "https", host: "slateblue-unwelcome-waxwing.gigalixirapp.com", port: 443],
   cache_static_manifest: "priv/static/cache_manifest.json"
 
 config :narou_bot, NarouBot.Scheduler,
