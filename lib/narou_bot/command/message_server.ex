@@ -19,7 +19,7 @@ defmodule NarouBot.Command.MessageServer do
 
   def get_reply_token(pid), do: GenServer.call(to_key_name(pid), :token)
 
-  def get_messages(pid),    do: GenServer.call(to_key_name(pid), :messages) |> Enum.reverse
+  def get_messages(pid),    do: GenServer.call(to_key_name(pid), :messages)
 
   def get_dao(pid),         do: GenServer.call(to_key_name(pid), :bindings)
 
@@ -50,6 +50,6 @@ defmodule NarouBot.Command.MessageServer do
   end
 
   def handle_cast({:push_message, message}, state = %{messages: messages}) do
-    {:noreply, %{state | messages: [message | messages] |> Enum.flat_map(&(&1))}}
+    {:noreply, %{state | messages: messages ++ List.wrap(message)}}
   end
 end
