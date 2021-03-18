@@ -50,6 +50,10 @@ defmodule NarouBot.JobService.RegisterWriterPostNovels do
 
   def create(param) do
     Logger.debug "start_create! ncode:#{param.ncode}"
-    spawn(Novels, :create_with_assoc_episode, [param])
+    try do
+      spawn(Novels, :create_with_assoc_episode, [param])
+    rescue
+      _e in _ -> :pass
+    end
   end
 end

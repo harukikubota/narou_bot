@@ -21,10 +21,7 @@ Users.new_user System.get_env("USERB")
 # ! NOVELS
 ncodes = ~w(n0179fz n0358dh n0383gq n0423gu n0637gi n0776dq n0799fw n0806fu n1435ev n1720gr n1832fm n2267be n2330fy n2369gj n2494fq n2710db n2967go n3014fi n3289ds n3406ek n3976gk n3981fw n4185ci n4371s n4527bc n4750dy n5169el n5455cx n6041ev n6169dz n6362fe n6458eg n6486gs n6603go n6626ev n6811ck n6887gj n7200gt n7682fj n7728gs n7840gm n7850ds n7945fn n8329gj n8418ff n8760ei n9452fk n9984fb n7945fn n6362fe n6169dz n0089bk)
 
-Enum.each(ncodes, fn n ->
-  Novels.find_or_create_by(n)
-  Process.sleep(4000)
-end)
+Enum.each(ncodes, &Novels.find_or_create_by/1)
 Process.sleep(20000)
 
 ucn_seed =[
