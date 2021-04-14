@@ -5,6 +5,13 @@ defmodule NarouBot.Callback do
 
   @invoker NarouBot.Command.Invoker
 
+  def handle_message(%{type: "text", text: ":" <> opt}, info) do
+    case opt do
+      "i" -> invoke([:admin, :info], info)
+      _   -> default(info)
+    end
+  end
+
   def handle_message(%{type: "text", text: message}, info) do
     with %{"ncode" => ncode, "episode_id" => episode_id} <- Regex.named_captures(Constant.novel_regex(), message)
     do
