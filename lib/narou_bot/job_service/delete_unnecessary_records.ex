@@ -3,6 +3,8 @@ defmodule NarouBot.JobService.DeleteUnnecessaryRecords do
       不要なレコードを削除する
   """
 
+  # TODO レコード定義修正、本番をダンプ→ローカルへエクスポート、バッチ動かしてみる
+
   alias NarouBot.JobService.JobControlActivity
   alias NarouBot.Repo
   alias NarouBot.Entity.{

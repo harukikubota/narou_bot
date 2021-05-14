@@ -31,6 +31,8 @@ defmodule NarouBot.Entity.NotificationInfo do
 
   @default_status NotificationStatus.__enum_map__() |> List.first |> elem(1)
 
+  # TODO 削除バッチを動かせるようにする
+  # 外部参照をはずさずに消したいけど、リファレンスエラー出るから消す必要ありそう。。。
   schema "notification_facts" do
     belongs_to :user,          User
     belongs_to :novel,         Novel
