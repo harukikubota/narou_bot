@@ -163,12 +163,22 @@ defmodule NarouBot.Repo.Novels do
       is_short_story:    is_short_story
     }
   ) do
-    novel = create(%{ncode: ncode, title: title, writer_id: writer_id, finished: finished, is_short_story: is_short_story})
+    try do
+      novel = create(%{ncode: ncode, title: title, writer_id: writer_id, finished: finished, is_short_story: is_short_story})
 
-    %{novel_id: novel.id, episode_id: episode_id, remote_created_at: remote_created_at}
-    |> NovelEpisodes.create()
+      %{novel_id: novel.id, episode_id: episode_id, remote_created_at: remote_created_at}
+      |> NovelEpisodes.create()
 
-    novel
+      novel
+    rescue
+      e in Ecto.ConstraintError ->
+        Logger.warn("The novel revival process has begun.")
+        Logger.warn("Ncode: #{ncode}")
+        Logger.warn(inspect e)
+        resurrection_novel(ncode)
+
+        find_by_ncode(ncode)
+    end
   end
 
   def delete(id) do
@@ -181,6 +191,17 @@ defmodule NarouBot.Repo.Novels do
       where: [id: ^id],
       update: [
         set: [finished: true]
+      ]
+    )
+    |> Repo.update_all([])
+  end
+
+  def resurrection_novel(ncode) do
+    from(
+      Novel,
+      where: [ncode: ^ncode],
+      update: [
+        set: [remote_deleted: false]
       ]
     )
     |> Repo.update_all([])
