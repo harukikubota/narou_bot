@@ -132,12 +132,24 @@ defmodule NarouBot.Template.Novel.ReceiveNovelUrl do
                         },
                         %F.Text{
                           align:   :center,
-                          color:   "#e3a368",
                           gravity: :center,
                           text:    "最新話 #{dao.novel.episode_id}"
                         }
                       ]
                     }
+                  ]
+                },
+                %F.Box{
+                  layout: :horizontal,
+                  contents: [
+                    %F.Text{
+                      align: :center,
+                      text:  "総合 #{dao.novel_detail.total_point}P",
+                    },
+                    %F.Text{
+                      align: :center,
+                      text:  "#{dao.novel_detail.number_of_words}字",
+                    },
                   ]
                 }
               ]

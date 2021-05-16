@@ -45,5 +45,10 @@ defmodule NarouBot.Repo.Narou do
     end
   end
 
+  def novel_detail(ncode, cols \\ [:length, :global_point]) do
+    {:ok, 1, [result]} = _exec!(from(:novel, select: cols, where: [ncode: ncode]))
+    result
+  end
+
   defp _exec!(map), do: Narou.run!(map) |> Narou.format
 end
