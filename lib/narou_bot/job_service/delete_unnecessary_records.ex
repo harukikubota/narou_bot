@@ -79,6 +79,6 @@ defmodule NarouBot.JobService.DeleteUnnecessaryRecords do
       end
     )
     |> Enum.flat_map(&(&1))
-    |> (fn ids -> from(n in NovelEpisode, where: n.id in ^ids) end).()
+    |> then(fn ids -> from(n in NovelEpisode, where: n.id in ^ids) end)
   end
 end

@@ -5,7 +5,7 @@ defmodule NarouBot.Mixfile do
     [
       app: :narou_bot,
       version: "0.1.4",
-      elixir: "~> 1.4",
+      elixir: "~> 1.12.0",
       elixirc_paths: elixirc_paths(Mix.env),
       compilers: [:phoenix, :gettext] ++ Mix.compilers,
       start_permanent: Mix.env == :prod,
@@ -35,7 +35,7 @@ defmodule NarouBot.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:narou, git: "https://github.com/harukikubota/narou.git", tag: "0.2.7"},
+      {:narou, git: "https://github.com/harukikubota/narou.git", tag: "0.2.9"},
       {:phoenix, github: "phoenixframework/phoenix", branch: "master", override: true},
       {:phoenix_pubsub, "~> 2.0"},
       {:phoenix_ecto, ">= 4.1.0"},

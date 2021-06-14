@@ -51,6 +51,6 @@ defmodule NarouBot.Callback do
     List.wrap(mod_symbols)
     |> Enum.map(&Macro.camelize(to_string(&1)))
     |> Enum.join(".")
-    |> (&Module.concat(NarouBot.Command, &1)).()
+    |> then(&Module.concat(NarouBot.Command, &1))
   end
 end

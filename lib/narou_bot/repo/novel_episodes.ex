@@ -48,6 +48,6 @@ defmodule NarouBot.Repo.NovelEpisodes do
     )
     |> first()
     |> Repo.one()
-    |> (fn rec -> if(rec, do: exec_delete(rec)) end).()
+    |> then(fn rec -> if(rec, do: exec_delete(rec)) end)
   end
 end

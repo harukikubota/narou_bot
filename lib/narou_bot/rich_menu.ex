@@ -26,7 +26,7 @@ defmodule NarouBot.RichMenu do
     targets()
     |> Enum.map(&(&1.data()))
     |> Enum.map(&(%{name: &1.name, data: &1}))
-    |> tap(&link_to_remote_and_local/1)
+    |> tap_enumerable(&link_to_remote_and_local/1)
     |> List.first()
     |> set_default_menu()
   end
@@ -60,7 +60,7 @@ defmodule NarouBot.RichMenu do
     System.cmd(cmd_name, opt)
   end
 
-  def tap(enumerable, fun) do
+  def tap_enumerable(enumerable, fun) do
     enumerable
     |> Enum.each(fun)
     enumerable

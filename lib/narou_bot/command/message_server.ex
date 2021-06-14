@@ -7,7 +7,7 @@ defmodule NarouBot.Command.MessageServer do
     quote bind_quoted: [pid: pid] do
       inspect(pid)
       |> String.slice(7..-4)
-      |> (&(:"p#{&1}")).()
+      |> then(&(:"p#{&1}"))
     end
   end
 
