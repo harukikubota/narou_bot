@@ -149,11 +149,20 @@ defmodule NarouBot.JobService.ApplyRemoteData do
     |> Enum.each(&NotificationFacts.create(%{type: :new_post_novel, user_id: &1, novel_id: novel_id}))
   end
 
-  def create_notification_data(deleted_novel_episodes, :delete_novel_episode, data) do
-    Enum.each(deleted_novel_episodes, fn %{id: novel_episode_id} ->
-      data.notification_target_user_ids
-      |> Enum.each(&NotificationFacts.create(%{type: :delete_novel_episode, user_id: &1, novel_episode_id: novel_episode_id}))
-    end)
+  # FIXME 一時的に無効
+  def create_notification_data(_deleted_novel_episodes, :delete_novel_episode, data) do
+    contents = [data] |> Enum.map(&inspect/1) |> Enum.join("\n")
+
+    file_name_att =
+      [
+        Repo.Novels.find(data.novel_id).ncode,
+        data.episode_ids_to_delete |> Enum.to_list |> Enum.join("-"),
+        Timex.now |> Timex.format("%F-%T", :strftime) |> elem(1) |> String.replace(":", "-")
+      ]
+      |> Enum.join("_")
+
+    :ok = File.write("tmp/#{file_name_att}.log", contents)
+
   end
 
   def create_notification_data(_, :delete_novel, data) do
