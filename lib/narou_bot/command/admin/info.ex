@@ -1,12 +1,10 @@
 defmodule NarouBot.Command.Admin.Info do
   use NarouBot.Command
   alias NarouBot.Repo
+  import NarouBot.Command.Admin.Helper
 
   def setup(param) do
-    left = NarouBot.Util.Secure.admin_id_to_hash(param.user_id)
-    right = System.get_env("ADMIN_USER_ID") |> String.to_integer()
-
-    %{is_admin: left == right}
+    %{is_admin: is_admin(param)}
   end
 
   def call(%{is_admin: true}) do

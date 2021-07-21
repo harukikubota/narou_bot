@@ -7,6 +7,7 @@ defmodule NarouBot.Callback do
 
   def handle_message(%{type: "text", text: ":" <> opt}, info) do
     case opt do
+      "h" -> invoke([:admin, :help], info)
       "i" -> invoke([:admin, :info], info)
       _   -> default(info)
     end
