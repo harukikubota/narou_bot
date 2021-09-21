@@ -4,7 +4,8 @@ defmodule NarouBot.Template.Admin.Help do
   def render(:ok, _dao) do
     text = [
       h: "ヘルプの表示",
-      i: "インフォメーション"
+      i: "インフォメーション",
+      di: "やる"
     ]
     |> Enum.map(fn {k, v} -> "#{k}: #{v}" end)
     |> Enum.join("\n")
