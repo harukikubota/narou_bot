@@ -1,0 +1,32 @@
+# でーた
+%{ncode: "n0179fz"}
+
+# Jason.encode
+{:ok, "{\"ncode\":\"n0179fz\"}"}
+
+%NarouBot.Entity.Novel{
+    check_user: %NarouBot.Entity.UserCheckNovel{
+      do_notify: true,
+      novel_id: 148,
+      restart_episode_id: nil,
+      turn_off_notification_at: nil,
+      type: "update_notify",
+    },
+    ncode: "n2369gj",
+  }
+
+get_fun = fn t -> 
+  c = t.check_user
+  %{
+    do_notify: c.do_notify,
+    novel_id: c.novel_id,
+    restart_episode_id: c.restart_episode_id,
+    turn_off_notification_at: c.turn_off_notification_at,
+    type: c.type,
+  }
+end
+
+#小説のエピソード一覧
+#ユーザの登録小説一覧
+#ユーザの登録ライター一覧
+#リッチメニュー
