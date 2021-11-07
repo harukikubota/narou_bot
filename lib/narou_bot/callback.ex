@@ -9,6 +9,8 @@ defmodule NarouBot.Callback do
     case opt do
       "h" -> invoke([:admin, :help], info)
       "i" -> invoke([:admin, :info], info)
+      "d" -> invoke([:admin, :dump], info)
+      #"r" -> invoke([:admin, :restore], info)
       _   -> default(info)
     end
   end

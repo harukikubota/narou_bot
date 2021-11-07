@@ -114,11 +114,12 @@ defmodule NarouBot.Repo.UsersCheckNovels do
     |> Repo.update_all([])
   end
 
-  def switch_notification(user_id, novel_id) do
+  def switch_notification(user_id, novel_id, turned_at \\ 0) do
     target = find(user_id, novel_id, :update_notify)
 
     if target do
-      set = [do_notify: !target.do_notify, turn_off_notification_at: DateTime.utc_now]
+      turned_at = if turned_at > 0, do: turned_at, else: DateTime.utc_now
+      set = [do_notify: !target.do_notify, turn_off_notification_at: turned_at]
 
       from(
         n in UserCheckNovel,

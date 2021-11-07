@@ -12,12 +12,12 @@ defmodule NarouBotWeb.Router do
     plug :accepts, ["json"]
   end
 
-  pipeline :linebot do
-    plug NarouBot.Router
+  scope "/bot" do
+    forward "/", LineBot.Webhook, callback: NarouBot.Callback
   end
 
-  scope "/", NarouBotWeb do
-    pipe_through :browser # Use the default browser stack
-
+  scope "/api", NarouBotWeb do
+    pipe_through :api
+    post "/dump", ApiController, :dump
   end
 end

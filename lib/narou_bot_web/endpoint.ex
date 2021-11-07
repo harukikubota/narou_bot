@@ -21,7 +21,8 @@ defmodule NarouBotWeb.Endpoint do
 
   plug Plug.Logger
 
-  plug NarouBot.Router
+  plug LineBot.SavingReqBodyPlug
+  plug LineBot.SpittingOutBodyPlug
 
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],

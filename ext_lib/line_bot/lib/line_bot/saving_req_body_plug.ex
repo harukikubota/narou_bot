@@ -1,5 +1,6 @@
-defmodule LineBot.BodyReaderPlug do
+defmodule LineBot.SavingReqBodyPlug do
   import Plug.Conn
+  require Logger
 
   @behaviour Plug
   @moduledoc false
@@ -23,6 +24,4 @@ defmodule LineBot.BodyReaderPlug do
         raise Plug.BadRequestError
     end
   end
-
-  def read_cached_body(conn, _opts), do: {:ok, conn.private.line_bot_raw_body, conn}
 end

@@ -27,6 +27,7 @@ defmodule NarouBot.Repo.NovelEpisodes do
     |> Repo.all
   end
 
+  # FIXME UTCタイム受け取るように修正したい
   def create(%{novel_id: novel_id, episode_id: episode_id, remote_created_at: created}) do
     %NovelEpisode{}
     |> Map.merge(%{novel_id: novel_id, episode_id: episode_id, remote_created_at: created})

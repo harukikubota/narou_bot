@@ -26,14 +26,7 @@ defmodule LineBot.Webhook do
       config :line_bot, skip_validation: true
   """
 
-  plug :check_not_already_parsed
-  plug LineBot.BodyReaderPlug
   plug LineBot.ValidatorPlug
-
-  plug Plug.Parsers,
-    parsers: [:json],
-    json_decoder: Jason,
-    body_reader: {LineBot.BodyReaderPlug, :read_cached_body, []}
 
   plug LineBot.RequestLoggerPlug, level: :debug
 
@@ -43,6 +36,7 @@ defmodule LineBot.Webhook do
 
   post "/", do: dispatch_events(conn)
   match "/", do: send_resp(conn, :method_not_allowed, "")
+
 
   @impl true
   @doc """
@@ -56,24 +50,26 @@ defmodule LineBot.Webhook do
     end
   end
 
-  defp dispatch_events(
-         %Plug.Conn{
-           body_params: %{
-             "events" => [%{"source" => %{"userId" => "Udeadbeefdeadbeefdeadbeefdeadbeef"}} | _]
-           }
-         } = conn
-       ) do
+  defp dispatch_events(conn) do
+    parse_param(conn)
+    |> then(fn {body, conn} -> do_dispatch_events(body, conn) end)
+  end
+
+  defp parse_param(%Plug.Conn{private: %{line_bot_raw_body: raw_body}} = conn) do
+    {:ok, body} = Jason.decode(raw_body)
+    {body, conn}
+  end
+
+  defp do_dispatch_events(%{"events" => []}, conn) do
     Logger.debug("handled webhoook verify request")
     send_resp(conn, :ok, "")
     |> halt()
   end
 
-  defp dispatch_events(
-         %Plug.Conn{
-           private: %{line_bot_callback: callback},
-           body_params: %{"destination" => destination, "events" => events}
-         } = conn
-       ) do
+  defp do_dispatch_events(
+    %{"destination" => destination, "events" => events},
+    %Plug.Conn{private: %{line_bot_callback: callback}} = conn
+  ) do
     Task.Supervisor.start_child(LineBot.TaskSupervisor, fn ->
       LineBot.Dispatcher.dispatch_events(events, destination, callback)
     end)
@@ -82,7 +78,7 @@ defmodule LineBot.Webhook do
     |> halt()
   end
 
-  defp dispatch_events(%Plug.Conn{private: %{line_bot_raw_body: request}} = conn) do
+  defp do_dispatch_events(_body, %Plug.Conn{private: %{line_bot_raw_body: request}} = conn) do
     Logger.warn("Unrecognised request: #{request}")
     send_resp(conn, :bad_request, "Unrecognised request")
   end
