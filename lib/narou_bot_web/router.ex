@@ -19,5 +19,6 @@ defmodule NarouBotWeb.Router do
   scope "/api", NarouBotWeb do
     pipe_through :api
     post "/dump", ApiController, :dump
+    post "/rest", ApiController, :rest
   end
 end

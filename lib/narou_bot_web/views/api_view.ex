@@ -16,9 +16,14 @@ defmodule NarouBotWeb.Views.ApiView do
     end
 
     def render("dump.json", _) do
-      new(%Ex{})
-      |> dump_records()
-      |> do_render()
+      json_obj =
+        new(%Ex{})
+        |> dump_records()
+        |> do_render()
+
+      NarouBot.RestoreServer.close()
+
+      json_obj
     end
 
     def ent do
@@ -98,6 +103,9 @@ defmodule NarouBotWeb.Views.ApiView do
         |> Enum.map(fn {id, ncode} ->
           episodes =
             Repo.NovelEpisodes.leatest_update_history(id, 12)
+            # 最新話は小説レコード作成時に存在しているため、削除する
+            |> List.pop_at(0)
+            |> elem(1)
             |> Enum.map(fn %{created_at: created_at} = episode_info ->
               %{episode_info | created_at: to_unix_time(created_at)}
             end)

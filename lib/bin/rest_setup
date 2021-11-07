@@ -1,0 +1,19 @@
+#!/bin/bash
+# $1 env, $2 key
+PROD="slateblue-unwelcome-waxwing.gigalixirapp.com"
+DEV="localhost:4000"
+ENV="$1"
+
+if [ $ENV = "prod" ]; then
+  host=$PROD
+elif [ $ENV = "dev" ]; then
+  host=$DEV
+else
+  echo "invalid arg. only [prod, dev]."
+  exit 1
+fi
+
+url="$host/api/rest"
+json=`cat ~/work/elixir/narou_bot/tmp/dump.json`
+
+curl -X POST -H "Content-Type: application/json" -d "{\"key\":\"$2\", \"data\":$json}" $url
