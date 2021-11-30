@@ -35,18 +35,7 @@ defmodule NarouBotWeb.Views.ApiView do
       %__MODULE__{extracted: extracted}
     end
 
-    # %{
-    #   fetch_writer_ids: List(Integer()),
-    #   novel_episodes: List(Map(ncode: List(Map(episode_id: unix_time)))),
-    #   user_register_novels:  List(Map(user_id:, ncode:, do_notify:, restart_episode_id:, turn_off_notification_at:, type:)),
-    #   user_register_writers: List(Map(user_id:, writer_id:))
-    # }
-
     defp dump_records(self) do
-      # user_register_novels
-      # user_register_writers
-      # novel_episodes
-
       dump_terget_user_ids(self)
       # ユーザ登録データ抽出
       |> extraction_of_registered_data()

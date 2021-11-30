@@ -4,7 +4,6 @@ defmodule NarouBotWeb.ApiController do
 
   def dump(conn, _params) do
     body = conn.private.body
-    #Logger.info body: body
     case NarouBot.RestoreServer.verify_key(:dump, body["key"]) do
       :error -> raise "failed verify key."
       _ -> nil
