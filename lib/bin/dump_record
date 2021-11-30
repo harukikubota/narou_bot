@@ -14,6 +14,5 @@ else
 fi
 
 url="$host/api/dump"
-echo $url
 
 curl -X POST -H "Content-Type: application/json" -d "{\"key\":\"$2\"}" $url > ~/work/elixir/narou_bot/tmp/dump.json
