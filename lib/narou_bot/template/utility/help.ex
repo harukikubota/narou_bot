@@ -5,7 +5,7 @@ defmodule NarouBot.Template.Utility.Help do
   import NarouBot.Template.Helper
 
   def render(:mitaiou, _) do
-    %M.Text{text: "ヘルプは未実装です。しばしお待ちを。。。"}
+    %M.Text{text: "ヘルプは未実装です。しばしお待ちを。。。。"}
   end
 
   def render("list", _) do
