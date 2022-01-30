@@ -61,7 +61,15 @@ defmodule NarouBot.Template.Novel.ReceiveNovelUrl do
         )
 
       :registered_update_notify ->
-        [action(:update_notify_delete, dao)]
+        [
+          action(:update_notify_delete, dao)
+        ] ++ (
+          unless dao.novel.finished do
+            [action(:update_notify_change, dao)]
+          else
+            []
+          end
+        )
     end
   end
 
@@ -74,9 +82,10 @@ defmodule NarouBot.Template.Novel.ReceiveNovelUrl do
     _action(%{action: "/novel/update", novel_id: dao.novel.id, episode_id: dao.episode_id, type: :read_later}, label)
   end
 
+  defp action(:read_later_delete, dao), do: _action(%{action: "/novel/delete", novel_id: dao.novel.id, type: :read_later}, "後で読むから削除する")
   defp action(:update_notify_add, dao), do: _action(%{action: "/novel/add", novel_id: dao.novel.id, type: :update_notify}, "更新通知に追加する")
   defp action(:read_later_change, dao), do: _action(%{action: "/novel/change_to_update_notify", novel_id: dao.novel.id}, "更新通知に変更する")
-  defp action(:read_later_delete, dao), do: _action(%{action: "/novel/delete", novel_id: dao.novel.id, type: :read_later}, "後で読むから削除する")
+  defp action(:update_notify_change, dao), do: _action(%{action: "/novel/change_to_read_later", novel_id: dao.novel.id}, "後で読むに変更する")
   defp action(:update_notify_delete, dao), do: _action(%{action: "/novel/delete", novel_id: dao.novel.id, type: :update_notify}, "更新通知から削除する")
 
   defp _template(dao) do
