@@ -33,6 +33,7 @@ defmodule NarouBot.Repo.Users do
     |> Repo.all
   end
 
+  # エピソード更新、エピソード削除、小説削除は全通知モードも見る
   defp _notification_target_users(:novel_new_episode, %{novel_id: novel_id}) do
     from(
       u in User,

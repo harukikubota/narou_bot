@@ -1,3 +1,6 @@
+# 未登録／更新通知登録済／後で読む登録済／全通知用の構造体を受け取るようにする。
+# 各モジュールが構造体を生成する。    
+
 defmodule NarouBot.Template.Novel.Show do
   use NarouBot.Template
   alias LineBot.Message, as: M
