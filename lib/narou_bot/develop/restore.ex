@@ -19,18 +19,6 @@ defmodule NarouBot.Develop.Restore do
     rest_user_register_writers(body)
   end
 
-  #defp load_restore_data() do
-  #  Application.app_dir(:narou_bot)
-  #  |> Path.split
-  #  |> Enum.slice(0..-5)
-  #  |> Kernel.++(["tmp", "dump.json"])
-  #  |> Path.join
-  #  |> File.read
-  #  |> elem(1)
-  #  |> Jason.decode
-  #  |> elem(1)
-  #end
-
   defp load_restore_data() do
     NarouBot.RestoreServer.get_rest_data()
   end
